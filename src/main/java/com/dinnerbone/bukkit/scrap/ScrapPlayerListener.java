@@ -26,7 +26,7 @@ public class ScrapPlayerListener extends PlayerListener {
 
         if (split[0].equalsIgnoreCase("/tp")) {
             if (split.length == 2) {
-                String dest = split[2];
+                String dest = split[1];
                 
                 if (dest.equalsIgnoreCase("*")) {
                     player.sendMessage(Color.RED + "Incorrect usage of wildchar *");
