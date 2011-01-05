@@ -24,7 +24,7 @@ public class ScrapPlayerListener extends PlayerListener {
         String[] split = event.getMessage().split(" ");
         Player player = event.getPlayer();
 
-        if (split[0].equalsIgnoreCase("/tp")) {
+        if ((!event.isCancelled()) && (split[0].equalsIgnoreCase("/tp"))) {
             if (split.length == 2) {
                 String dest = split[1];
                 
@@ -54,6 +54,15 @@ public class ScrapPlayerListener extends PlayerListener {
                 player.sendMessage("/tp Dinnerbone - teleports you to the player named Dinnerbone");
                 player.sendMessage("/tp Bukkit Walrus - teleports a player named Bukkit to a player named Walrus");
                 player.sendMessage("/tp * Monster - telports every online player to a player named Monster");
+            }
+
+            event.setCancelled(true);
+        } else if ((!event.isCancelled()) && (split[0].equalsIgnoreCase("/tphere"))) {
+            String victim = split[1];
+
+            if (!plugin.teleport(victim, player)) {
+                player.sendMessage(Color.RED + "Could not teleport " + victim
+                        + " to you (Is the name spelt correctly?)");
             }
 
             event.setCancelled(true);
