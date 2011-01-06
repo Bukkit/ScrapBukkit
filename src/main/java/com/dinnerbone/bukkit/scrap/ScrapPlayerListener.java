@@ -3,6 +3,7 @@ package com.dinnerbone.bukkit.scrap;
 
 import org.bukkit.Color;
 import org.bukkit.Player;
+import org.bukkit.Server;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;
 
@@ -76,6 +77,65 @@ public class ScrapPlayerListener extends PlayerListener {
             }
 
             event.setCancelled(true);
+        } else if (command.equalsIgnoreCase("/time")) {
+            Server server = plugin.getServer();
+            long time = server.getTime();
+            long relativeTime = time % 24000;
+            long startOfDay = time - relativeTime;
+            if (split.length == 1) {
+            	int hours = (int)((time / 1000+8) % 24);
+            	int minutes = (((int)(time % 1000)) / 1000) * 60;
+            	player.sendMessage("Time: "+hours+":"+minutes);
+            	event.setCancelled(true);
+            } else if (split.length == 2) {
+            	String timeStr = split[1];
+            	if (timeStr.equalsIgnoreCase("help")) {
+            		// Gets handled later.
+            	} else if (timeStr.equalsIgnoreCase("raw")) {
+            		player.sendMessage("Raw:  " + time);
+            		event.setCancelled(true);
+            	} else if (timeStr.equalsIgnoreCase("day")) {
+            		server.setTime(startOfDay);
+            		event.setCancelled(true);
+            	} else if (timeStr.equalsIgnoreCase("night")) {
+            		server.setTime(startOfDay + 13000);
+            		event.setCancelled(true);
+            	} else if (timeStr.startsWith("=")) {
+            		try {
+            		server.setTime(Long.parseLong(timeStr.substring(1)));
+            		event.setCancelled(true);
+            		} catch(NumberFormatException ex) { }
+            	} else if (timeStr.startsWith("+")) {
+            		try {
+            		server.setTime(time+Long.parseLong(timeStr.substring(1)));
+            		event.setCancelled(true);
+            		} catch(NumberFormatException ex) { }
+            	} else if (timeStr.startsWith("-")) {
+            		try {
+            		server.setTime(time-Long.parseLong(timeStr.substring(1)));
+            		event.setCancelled(true);
+            		} catch(NumberFormatException ex) { }
+            	} else {
+            		try {
+            		relativeTime = (Integer.parseInt(timeStr)*1000-8000+24000)%24000;
+            		server.setTime(startOfDay + relativeTime);
+            		event.setCancelled(true);
+            		} catch(NumberFormatException ex) { }
+            	}
+            }
+            
+            if (!event.isCancelled()) {
+            	player.sendMessage(Color.RED + "Incorrect usage of command /time. Examples:");
+            	player.sendMessage(Color.RED + "/time - results in current time (13.00)");
+            	player.sendMessage(Color.RED + "/time 13 - sets the time to 13.00");
+            	player.sendMessage(Color.RED + "/time day - makes it day");
+            	player.sendMessage(Color.RED + "/time night - makes it night");
+            	player.sendMessage(Color.RED + "/time raw - results in current raw time");
+            	player.sendMessage(Color.RED + "/time =24000 - sets the current raw time (48000 is two days)");
+            	player.sendMessage(Color.RED + "/time +1000 - adds raw time (1000 is one hour)");
+            	player.sendMessage(Color.RED + "/time -1000 - substracts raw time");
+            	event.setCancelled(true);
+            }
         }
     }
 }
