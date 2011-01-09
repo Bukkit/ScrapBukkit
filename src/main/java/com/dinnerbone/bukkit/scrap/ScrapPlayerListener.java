@@ -2,6 +2,8 @@
 package com.dinnerbone.bukkit.scrap;
 
 import org.bukkit.Color;
+import org.bukkit.ItemStack;
+import org.bukkit.Material;
 import org.bukkit.Player;
 import org.bukkit.Server;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -62,6 +64,19 @@ public class ScrapPlayerListener extends PlayerListener {
             }
 
             event.setCancelled(true);
+        } else if (command.equalsIgnoreCase("/givetest")) {
+            if (split.length >= 2) {
+                int itemId = Integer.parseInt(split[1]);
+                int amount = 1;
+                if (split.length >= 3) {
+                    amount = Integer.parseInt(split[2]);
+                }
+
+                player.sendMessage( "Giving "+amount+" x "+ Material.getMaterial(itemId).name() );
+
+                player.getInventory().addItem(new ItemStack(itemId, amount));
+                event.setCancelled(true);
+            }
         } else if (command.equalsIgnoreCase("/tphere")) {
             if (split.length == 2) {
                 String victim = split[1];
