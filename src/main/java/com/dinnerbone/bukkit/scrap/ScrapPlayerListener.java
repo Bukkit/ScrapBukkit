@@ -1,7 +1,7 @@
 
 package com.dinnerbone.bukkit.scrap;
 
-import org.bukkit.Color;
+import org.bukkit.ChatColor;
 import org.bukkit.ItemStack;
 import org.bukkit.Material;
 import org.bukkit.Player;
@@ -36,10 +36,10 @@ public class ScrapPlayerListener extends PlayerListener {
                 String dest = split[1];
                 
                 if (dest.equalsIgnoreCase("*")) {
-                    player.sendMessage(Color.RED + "Incorrect usage of wildchar *");
+                    player.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
                 } else {
                     if (!plugin.teleport(player, dest)) {
-                        player.sendMessage(Color.RED + "Could not teleport to " + dest
+                        player.sendMessage(ChatColor.RED + "Could not teleport to " + dest
                                 + " (Is the name spelt correctly?)");
                     }
                 }
@@ -49,18 +49,18 @@ public class ScrapPlayerListener extends PlayerListener {
                 String dest = split[2];
 
                 if (dest.equalsIgnoreCase("*")) {
-                    player.sendMessage(Color.RED + "Incorrect usage of wildchar *");
+                    player.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
                 } else {
                     if (!plugin.teleport(victim, dest)) {
-                        player.sendMessage(Color.RED + "Could not teleport "
+                        player.sendMessage(ChatColor.RED + "Could not teleport "
                                 + victim + " to " + dest + " (Are the names spelt correctly?)");
                     }
                 }
             } else {
-                player.sendMessage(Color.RED + "Incorrect usage of command /tp. Examples:");
-                player.sendMessage(Color.RED + "/tp Dinnerbone - teleports you to the player named Dinnerbone");
-                player.sendMessage(Color.RED + "/tp Bukkit Walrus - teleports a player named Bukkit to a player named Walrus");
-                player.sendMessage(Color.RED + "/tp * Monster - telports every online player to a player named Monster");
+                player.sendMessage(ChatColor.RED + "Incorrect usage of command /tp. Examples:");
+                player.sendMessage(ChatColor.RED + "/tp Dinnerbone - teleports you to the player named Dinnerbone");
+                player.sendMessage(ChatColor.RED + "/tp Bukkit Walrus - teleports a player named Bukkit to a player named Walrus");
+                player.sendMessage(ChatColor.RED + "/tp * Monster - telports every online player to a player named Monster");
             }
 
             event.setCancelled(true);
@@ -82,13 +82,13 @@ public class ScrapPlayerListener extends PlayerListener {
                 String victim = split[1];
 
                 if (!plugin.teleport(victim, player)) {
-                    player.sendMessage(Color.RED + "Could not teleport " + victim
+                    player.sendMessage(ChatColor.RED + "Could not teleport " + victim
                             + " to you (Is the name spelt correctly?)");
                 }
             } else {
-                player.sendMessage(Color.RED + "Incorrect usage of command /tphere. Examples:");
-                player.sendMessage(Color.RED + "/tphere Dinnerbone - teleports the player named Dinnerbone to you");
-                player.sendMessage(Color.RED + "/tphere * - teleports every online player to yourself");
+                player.sendMessage(ChatColor.RED + "Incorrect usage of command /tphere. Examples:");
+                player.sendMessage(ChatColor.RED + "/tphere Dinnerbone - teleports the player named Dinnerbone to you");
+                player.sendMessage(ChatColor.RED + "/tphere * - teleports every online player to yourself");
             }
 
             event.setCancelled(true);
@@ -140,15 +140,15 @@ public class ScrapPlayerListener extends PlayerListener {
             }
             
             if (!event.isCancelled()) {
-            	player.sendMessage(Color.RED + "Incorrect usage of command /time. Examples:");
-            	player.sendMessage(Color.RED + "/time - results in current time (13.00)");
-            	player.sendMessage(Color.RED + "/time 13 - sets the time to 13.00");
-            	player.sendMessage(Color.RED + "/time day - makes it day");
-            	player.sendMessage(Color.RED + "/time night - makes it night");
-            	player.sendMessage(Color.RED + "/time raw - results in current raw time");
-            	player.sendMessage(Color.RED + "/time =24000 - sets the current raw time (48000 is two days)");
-            	player.sendMessage(Color.RED + "/time +1000 - adds raw time (1000 is one hour)");
-            	player.sendMessage(Color.RED + "/time -1000 - substracts raw time");
+            	player.sendMessage(ChatColor.RED + "Incorrect usage of command /time. Examples:");
+            	player.sendMessage(ChatColor.RED + "/time - results in current time (13.00)");
+            	player.sendMessage(ChatColor.RED + "/time 13 - sets the time to 13.00");
+            	player.sendMessage(ChatColor.RED + "/time day - makes it day");
+            	player.sendMessage(ChatColor.RED + "/time night - makes it night");
+            	player.sendMessage(ChatColor.RED + "/time raw - results in current raw time");
+            	player.sendMessage(ChatColor.RED + "/time =24000 - sets the current raw time (48000 is two days)");
+            	player.sendMessage(ChatColor.RED + "/time +1000 - adds raw time (1000 is one hour)");
+            	player.sendMessage(ChatColor.RED + "/time -1000 - substracts raw time");
             	event.setCancelled(true);
             }
         }
