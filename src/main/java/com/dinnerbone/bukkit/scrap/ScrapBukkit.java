@@ -3,10 +3,14 @@ package com.dinnerbone.bukkit.scrap;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
 import java.util.Scanner;
 import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -99,20 +103,63 @@ public class ScrapBukkit extends JavaPlugin {
         }
         String playerName = player.getName();
         Location currentLoc = player.getLocation();
+        Location newLoc = null;
+        World world = currentLoc.getWorld();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
-            if (line.startsWith(playerName)) {
+            if (line.startsWith(playerName + ":")) {
                 String[] rest = line.substring(playerName.length() + 1).split(":");
-                Location newLoc = new Location(currentLoc.getWorld(),
+                newLoc = new Location(world,
                   Double.parseDouble(rest[0]),
                   Double.parseDouble(rest[1]),
                   Double.parseDouble(rest[2]),
                   Float.parseFloat(rest[3]),
                   Float.parseFloat(rest[4])
                 );
-                player.teleportTo(newLoc);
-                return;
+                break;
             }
+        }
+        if (null == newLoc) {
+            newLoc = world.getSpawnLocation();
+        }
+        player.teleportTo (newLoc);
+    }
+    protected void setAsHome(final Player player) {
+        String playerName = player.getName();
+        Location currentLoc = player.getLocation();
+        Scanner readscan;
+        String newLine = playerName
+            + ":" + currentLoc.getX()
+            + ":" + currentLoc.getY()
+            + ":" + currentLoc.getZ()
+            + ":" + currentLoc.getYaw()
+            + ":" + currentLoc.getPitch();
+        File dest = null; BufferedWriter writestream;
+        try {
+            readscan = new Scanner(new FileInputStream("homes.txt"), "UTF-8");
+            dest = new File(".homes.txt");
+            writestream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(dest)));
+            boolean updated = false;
+            while (readscan.hasNextLine()) {
+                String line = readscan.nextLine();
+                if (line.startsWith(playerName + ":")) {
+                    writestream.write(newLine);
+                    updated = true;
+                } else {
+                    writestream.write(line);
+                }
+                writestream.newLine();
+            }
+            if (!updated) {
+                writestream.write(newLine);
+                writestream.newLine();
+            }
+            writestream.close();
+            dest.renameTo(new File("homes.txt")); // overwrite
+        } catch (Exception ex) {
+            if (null != dest) dest.delete();
+            ex.printStackTrace();
+            return;
         }
     }
 }

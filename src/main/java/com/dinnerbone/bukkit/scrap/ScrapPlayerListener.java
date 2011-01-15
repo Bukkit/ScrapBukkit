@@ -94,6 +94,8 @@ public class ScrapPlayerListener extends PlayerListener {
             event.setCancelled(true);
         } else if (command.equalsIgnoreCase("/home")) {
             plugin.tpHome(player);
+        } else if (command.equalsIgnoreCase("/sethome")) {
+            plugin.setAsHome(player);
         } else if (command.equalsIgnoreCase("/time")) {
             Server server = plugin.getServer();
             long time = server.getTime();
