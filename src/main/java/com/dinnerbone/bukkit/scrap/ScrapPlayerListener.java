@@ -2,9 +2,9 @@
 package com.dinnerbone.bukkit.scrap;
 
 import org.bukkit.ChatColor;
-import org.bukkit.ItemStack;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.Material;
-import org.bukkit.Player;
+import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerListener;

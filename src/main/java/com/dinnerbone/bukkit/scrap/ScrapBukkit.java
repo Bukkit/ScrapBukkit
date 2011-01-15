@@ -2,7 +2,7 @@
 package com.dinnerbone.bukkit.scrap;
 
 import java.io.File;
-import org.bukkit.Player;
+import org.bukkit.entity.Player;
 import org.bukkit.Server;
 import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event;
