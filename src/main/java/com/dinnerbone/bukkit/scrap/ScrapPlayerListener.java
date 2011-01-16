@@ -112,10 +112,16 @@ public class ScrapPlayerListener extends PlayerListener {
             	} else if (timeStr.equalsIgnoreCase("day")) {
             		server.setTime(startOfDay);
             		event.setCancelled(true);
-            	} else if (timeStr.equalsIgnoreCase("night")) {
-            		server.setTime(startOfDay + 13000);
-            		event.setCancelled(true);
-            	} else if (timeStr.startsWith("=")) {
+                } else if (timeStr.equalsIgnoreCase("sunset")) {
+                    server.setTime(startOfDay +  12000);
+                    event.setCancelled(true);
+                } else if (timeStr.equalsIgnoreCase("night")) {
+                    server.setTime(startOfDay + 13800);
+                    event.setCancelled(true);
+                } else if (timeStr.equalsIgnoreCase("sunrise")) {
+                    server.setTime(startOfDay + 22200);
+                    event.setCancelled(true);
+                } else if (timeStr.startsWith("=")) {
             		try {
             		server.setTime(Long.parseLong(timeStr.substring(1)));
             		event.setCancelled(true);
