@@ -35,9 +35,15 @@ public class ScrapBukkit extends JavaPlugin {
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
     }
-
+    private Player lookupPlayer(String name) {
+        for (Player player : getServer().getOnlinePlayers()) {
+            if (player.getDisplayName().toLowerCase().startsWith(name.toLowerCase()))
+                return player;
+        }
+        return null;
+    }
     protected boolean teleport(final Player victim, final String destName) {
-        Player destination = getServer().getPlayer(destName);
+        Player destination = lookupPlayer(destName);
 
         if ((victim == null) || (destination == null)) {
             return false;
@@ -48,7 +54,7 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     protected boolean teleport(final String victimName, final Player destination) {
-        Player victim = getServer().getPlayer(victimName);
+        Player victim = lookupPlayer(victimName);
 
         if ((victim == null) || (destination == null)) {
             return false;
@@ -59,7 +65,7 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     protected boolean teleport(final String victimName, final String destName) {
-        Player destination = getServer().getPlayer(destName);
+        Player destination = lookupPlayer(destName);
 
         if (victimName.equalsIgnoreCase("*")) {
             Player[] players = getServer().getOnlinePlayers();
@@ -72,7 +78,7 @@ public class ScrapBukkit extends JavaPlugin {
 
             return true;
         } else {
-            Player victim = getServer().getPlayer(victimName);
+            Player victim = lookupPlayer(victimName);
 
             if ((victim == null) || (destination == null)) {
                 return false;
