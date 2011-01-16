@@ -68,6 +68,19 @@ public class ScrapPlayerListener extends PlayerListener {
             player.sendMessage( "Cleared inventory" );
             player.getInventory().clear();
             event.setCancelled(true);
+        } else if (command.equalsIgnoreCase("/take")) {
+            if (split.length >= 2) {
+                int itemId = Integer.parseInt(split[1]);
+                int amount = 1;
+                if (split.length >= 3) {
+                    amount = Integer.parseInt(split[2]);
+                }
+
+                player.sendMessage( "Taking "+amount+" x "+ Material.getMaterial(itemId).name() );
+
+                player.getInventory().removeItem(new ItemStack(itemId, amount));
+                event.setCancelled(true);
+            }
         } else if (command.equalsIgnoreCase("/givetest")) {
             if (split.length >= 2) {
                 int itemId = Integer.parseInt(split[1]);
