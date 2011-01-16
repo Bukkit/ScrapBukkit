@@ -64,6 +64,10 @@ public class ScrapPlayerListener extends PlayerListener {
             }
 
             event.setCancelled(true);
+        } else if (command.equalsIgnoreCase("/clear")) {
+            player.sendMessage( "Cleared inventory" );
+            player.getInventory().clear();
+            event.setCancelled(true);
         } else if (command.equalsIgnoreCase("/givetest")) {
             if (split.length >= 2) {
                 int itemId = Integer.parseInt(split[1]);
