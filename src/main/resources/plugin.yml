@@ -1,3 +1,18 @@
 name: ScrapBukkit
 main: com.dinnerbone.bukkit.scrap.ScrapBukkit
 version: 0.1
+commands:
+  tp:
+    description: Teleports you somewhere
+  clear:
+    description: Clears your inventory
+    usage: /clear
+  givetest:
+    description: Test giving of items
+    usage: /givetest <ItemID>
+  tphere:
+    description: Tp here
+    usage: /tphere
+  time:
+    description: shows the current time
+    usage: 
