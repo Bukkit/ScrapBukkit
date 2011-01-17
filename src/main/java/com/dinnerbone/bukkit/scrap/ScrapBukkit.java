@@ -193,8 +193,8 @@ public class ScrapBukkit extends JavaPlugin {
             long startOfDay = time - relativeTime;
             if (split.length == 1) {
                 int hours = (int)((time / 1000+8) % 24);
-                int minutes = (((int)(time % 1000)) / 1000) * 60;
-                player.sendMessage("Time: "+hours+":"+minutes);
+                int minutes = (int) (60 * (time % 1000) / 1000);
+                player.sendMessage(String.format( "Time: %02d:%02d", hours, minutes));
             } else if (split.length == 2) {
                 String timeStr = split[1];
                 if (timeStr.equalsIgnoreCase("help")) {
@@ -219,8 +219,8 @@ public class ScrapBukkit extends JavaPlugin {
                     } catch(NumberFormatException ex) { }
                 } else {
                     try {
-                    relativeTime = (Integer.parseInt(timeStr)*1000-8000+24000)%24000;
-                    server.setTime(startOfDay + relativeTime);
+                        relativeTime = (Integer.parseInt(timeStr)*1000-8000+24000)%24000;
+                        server.setTime(startOfDay + relativeTime);
                     } catch(NumberFormatException ex) { }
                 }
             } else {
