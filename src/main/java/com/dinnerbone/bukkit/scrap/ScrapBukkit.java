@@ -123,6 +123,7 @@ public class ScrapBukkit extends JavaPlugin {
             player.sendMessage( "Cleared inventory" );
             player.getInventory().clear();
         } else if (command.equalsIgnoreCase("/take")) {
+            try {
             if (split.length >= 2) {
                 int itemId = Integer.parseInt(split[1]);
                 int amount = 1;
@@ -134,17 +135,42 @@ public class ScrapBukkit extends JavaPlugin {
 
                 player.getInventory().removeItem(new ItemStack(itemId, amount));
             }
-        } else if (command.equalsIgnoreCase("/givetest")) {
-            if (split.length >= 2) {
-                int itemId = Integer.parseInt(split[1]);
-                int amount = 1;
-                if (split.length >= 3) {
-                    amount = Integer.parseInt(split[2]);
+            } catch (Exception exc) {
+                player.sendMessage("Correct usage is /take <ItemName | ItemId> [Amount]");
+            }
+        } else if (command.equalsIgnoreCase("/give")) {
+            try {
+                if (split.length >= 2) {
+                    boolean isInt = true;
+                    for (int i = 0; i < split[1].length(); i++) {
+                        if (!Character.isDigit(split[1].charAt(i))) {
+                            isInt = false;
+                        }
+                    }
+                    if (isInt) {
+                        int itemId = Integer.parseInt(split[1]);
+                        int amount = 1;
+                        if (split.length >= 3) {
+                            amount = Integer.parseInt(split[2]);
+                        }
+
+                        player.sendMessage("Giving " + amount + " x " + Material.getMaterial(itemId).name());
+
+                        player.getInventory().addItem(new ItemStack(itemId, amount));
+                    } else {
+                        String itemId = split[1].toUpperCase();
+                        int amount = 1;
+                        if (split.length >= 3) {
+                            amount = Integer.parseInt(split[2]);
+                        }
+
+                        player.sendMessage("Giving " + amount + " x " + Material.getMaterial(itemId).name());
+
+                        player.getInventory().addItem(new ItemStack(Material.getMaterial(itemId).getId(), amount));
+                    }
                 }
-
-                player.sendMessage( "Giving "+amount+" x "+ Material.getMaterial(itemId).name() );
-
-                player.getInventory().addItem(new ItemStack(itemId, amount));
+            } catch (Exception exc) {
+                player.sendMessage("Correct usage is /give <ItemName | ItemId> [Amount]");
             }
         } else if (command.equalsIgnoreCase("/tphere")) {
             if (split.length == 2) {
