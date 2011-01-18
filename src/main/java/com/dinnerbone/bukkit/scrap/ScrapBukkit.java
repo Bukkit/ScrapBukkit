@@ -86,6 +86,8 @@ public class ScrapBukkit extends JavaPlugin {
         victim.teleportTo(destination.getLocation());
     }
     
+
+    @Override
     public boolean onCommand(Player player, Command command, String commandLabel, String[] args) {
         String[] split = args;
         String commandName = command.getName().toLowerCase();
@@ -118,23 +120,32 @@ public class ScrapBukkit extends JavaPlugin {
                 return true;
             }
         } else if (commandName.equals("clear")) {
-            player.sendMessage( "Cleared inventory" );
-            player.getInventory().clear();
+            Player victim = player;
+            if (split.length == 2) {
+                victim = getServer().getPlayer(split[1]);
+            }
+            player.sendMessage( "Cleared " + (player == victim ? "your" : victim.getName() + "'s") + " inventory");
+            if(player != victim) victim.sendMessage("Your inventory has been cleared by a player");
+            victim.getInventory().clear();
             return true;
         } else if (commandName.equals("take")) {
             try {
-                if (split.length >= 2) {
-                    int itemId = Integer.parseInt(split[1]);
-                    int amount = 1;
-                    if (split.length >= 3) {
-                        amount = Integer.parseInt(split[2]);
+            Player victim = player;
+            if (split.length >= 2) {
+                int itemId = Integer.parseInt(split[1]);
+                int amount = 1;
+                if (split.length >= 3) {
+                    amount = Integer.parseInt(split[2]);
+                    if (split.length >= 4) {
+                        victim = getServer().getPlayer(split[3]);
                     }
-    
-                    player.sendMessage( "Taking "+amount+" x "+ Material.getMaterial(itemId).name() );
-    
-                    player.getInventory().removeItem(new ItemStack(itemId, amount));
-                    return true;
                 }
+
+                player.sendMessage("Taking " + amount + " " + Material.getMaterial(itemId).name() + " from " + (player == victim ? "yourself" : player.getName()));
+                victim.getInventory().removeItem(new ItemStack(itemId, amount));
+                if(player != victim) victim.sendMessage("A player has removed some " + Material.getMaterial(itemId).name() + "from your inventory");
+                return true;
+            }
             } catch (Exception exc) {
                 player.sendMessage("Correct usage is /take <ItemName | ItemId> [Amount]");
             }
@@ -147,27 +158,34 @@ public class ScrapBukkit extends JavaPlugin {
                             isInt = false;
                         }
                     }
+                    int itemId;
                     if (isInt) {
-                        int itemId = Integer.parseInt(split[1]);
-                        int amount = 1;
-                        if (split.length >= 3) {
-                            amount = Integer.parseInt(split[2]);
-                        }
-
-                        player.sendMessage("Giving " + amount + " x " + Material.getMaterial(itemId).name());
-
-                        player.getInventory().addItem(new ItemStack(itemId, amount));
-                    } else {
-                        String itemId = split[1].toUpperCase();
-                        int amount = 1;
-                        if (split.length >= 3) {
-                            amount = Integer.parseInt(split[2]);
-                        }
-
-                        player.sendMessage("Giving " + amount + " x " + Material.getMaterial(itemId).name());
-
-                        player.getInventory().addItem(new ItemStack(Material.getMaterial(itemId).getId(), amount));
+                        itemId = Integer.parseInt(split[1]);
                     }
+                    else {
+                        itemId = Material.getMaterial(split[1].toUpperCase()).getId();
+                    }
+                    int amount = 1;
+                    Byte data = null;
+                    Player victim = player;
+                    if (split.length >= 3) {
+                        amount = Integer.parseInt(split[2]);
+                        if (split.length >= 4) {
+                            if(split[3].startsWith("-d")) {
+                                data = Byte.valueOf(split[3].substring(2));
+                                if(split.length >= 5) {
+                                    victim = getServer().getPlayer(split[4]);
+                                }
+                            }
+                            else {
+                                victim = getServer().getPlayer(split[3]);
+                            }
+                        }
+                    }
+
+                    player.sendMessage("Giving " + amount + " " + Material.getMaterial(itemId).name() + " to " + (player == victim ? "yourself" : player.getName()));
+                    victim.getInventory().addItem(new ItemStack(itemId, amount, (byte)0, data));
+                    if(player != victim) victim.sendMessage("A player has added some " + Material.getMaterial(itemId).name() + "to your inventory");
                     return true;
                 }
             } catch (Exception exc) {
