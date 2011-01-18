@@ -2,11 +2,13 @@
 package com.dinnerbone.bukkit.scrap;
 
 import java.io.File;
+
+import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -84,10 +86,11 @@ public class ScrapBukkit extends JavaPlugin {
         victim.teleportTo(destination.getLocation());
     }
     
-    public void onCommand(Player player, String command, String[] args) {
+    public boolean onCommand(Player player, Command command, String commandLabel, String[] args) {
         String[] split = args;
+        String commandName = command.getName().toLowerCase();
 
-        if (command.equalsIgnoreCase("/tp")) {
+        if (commandName.equals("tp")) {
             if (split.length == 2) {
                 String dest = split[1];
                 
@@ -99,7 +102,7 @@ public class ScrapBukkit extends JavaPlugin {
                                 + " (Is the name spelt correctly?)");
                     }
                 }
-
+                return true;
             } else if (split.length == 3) {
                 String victim = split[1];
                 String dest = split[2];
@@ -112,33 +115,30 @@ public class ScrapBukkit extends JavaPlugin {
                                 + victim + " to " + dest + " (Are the names spelt correctly?)");
                     }
                 }
-            } else {
-                player.sendMessage(ChatColor.RED + "Incorrect usage of command /tp. Examples:");
-                player.sendMessage(ChatColor.RED + "/tp Dinnerbone - teleports you to the player named Dinnerbone");
-                player.sendMessage(ChatColor.RED + "/tp Bukkit Walrus - teleports a player named Bukkit to a player named Walrus");
-                player.sendMessage(ChatColor.RED + "/tp * Monster - telports every online player to a player named Monster");
+                return true;
             }
-
-        } else if (command.equalsIgnoreCase("/clear")) {
+        } else if (commandName.equals("clear")) {
             player.sendMessage( "Cleared inventory" );
             player.getInventory().clear();
-        } else if (command.equalsIgnoreCase("/take")) {
+            return true;
+        } else if (commandName.equals("take")) {
             try {
-            if (split.length >= 2) {
-                int itemId = Integer.parseInt(split[1]);
-                int amount = 1;
-                if (split.length >= 3) {
-                    amount = Integer.parseInt(split[2]);
+                if (split.length >= 2) {
+                    int itemId = Integer.parseInt(split[1]);
+                    int amount = 1;
+                    if (split.length >= 3) {
+                        amount = Integer.parseInt(split[2]);
+                    }
+    
+                    player.sendMessage( "Taking "+amount+" x "+ Material.getMaterial(itemId).name() );
+    
+                    player.getInventory().removeItem(new ItemStack(itemId, amount));
+                    return true;
                 }
-
-                player.sendMessage( "Taking "+amount+" x "+ Material.getMaterial(itemId).name() );
-
-                player.getInventory().removeItem(new ItemStack(itemId, amount));
-            }
             } catch (Exception exc) {
                 player.sendMessage("Correct usage is /take <ItemName | ItemId> [Amount]");
             }
-        } else if (command.equalsIgnoreCase("/give")) {
+        } else if (commandName.equals("give")) {
             try {
                 if (split.length >= 2) {
                     boolean isInt = true;
@@ -168,11 +168,12 @@ public class ScrapBukkit extends JavaPlugin {
 
                         player.getInventory().addItem(new ItemStack(Material.getMaterial(itemId).getId(), amount));
                     }
+                    return true;
                 }
             } catch (Exception exc) {
                 player.sendMessage("Correct usage is /give <ItemName | ItemId> [Amount]");
             }
-        } else if (command.equalsIgnoreCase("/tphere")) {
+        } else if (commandName.equals("tphere")) {
             if (split.length == 2) {
                 String victim = split[1];
 
@@ -180,13 +181,9 @@ public class ScrapBukkit extends JavaPlugin {
                     player.sendMessage(ChatColor.RED + "Could not teleport " + victim
                             + " to you (Is the name spelt correctly?)");
                 }
-            } else {
-                player.sendMessage(ChatColor.RED + "Incorrect usage of command /tphere. Examples:");
-                player.sendMessage(ChatColor.RED + "/tphere Dinnerbone - teleports the player named Dinnerbone to you");
-                player.sendMessage(ChatColor.RED + "/tphere * - teleports every online player to yourself");
+                return true;
             }
-
-        } else if (command.equalsIgnoreCase("/time")) {
+        } else if (commandName.equals("time")) {
             Server server = getServer();
             long time = server.getTime();
             long relativeTime = time % 24000;
@@ -195,6 +192,7 @@ public class ScrapBukkit extends JavaPlugin {
                 int hours = (int)((time / 1000+8) % 24);
                 int minutes = (int) (60 * (time % 1000) / 1000);
                 player.sendMessage(String.format( "Time: %02d:%02d", hours, minutes));
+                return true;
             } else if (split.length == 2) {
                 String timeStr = split[1];
                 if (timeStr.equalsIgnoreCase("help")) {
@@ -223,17 +221,9 @@ public class ScrapBukkit extends JavaPlugin {
                         server.setTime(startOfDay + relativeTime);
                     } catch(NumberFormatException ex) { }
                 }
-            } else {
-                player.sendMessage(ChatColor.RED + "Incorrect usage of command /time. Examples:");
-                player.sendMessage(ChatColor.RED + "/time - results in current time (13.00)");
-                player.sendMessage(ChatColor.RED + "/time 13 - sets the time to 13.00");
-                player.sendMessage(ChatColor.RED + "/time day - makes it day");
-                player.sendMessage(ChatColor.RED + "/time night - makes it night");
-                player.sendMessage(ChatColor.RED + "/time raw - results in current raw time");
-                player.sendMessage(ChatColor.RED + "/time =24000 - sets the current raw time (48000 is two days)");
-                player.sendMessage(ChatColor.RED + "/time +1000 - adds raw time (1000 is one hour)");
-                player.sendMessage(ChatColor.RED + "/time -1000 - substracts raw time");
+                return true;
             }
         }
+        return false;
     }
 }

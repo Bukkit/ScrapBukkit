@@ -4,19 +4,35 @@ version: 0.1
 commands:
   clear:
     description: Clears your inventory
-    usage: /clear
+    usage: /<command>
   give:
     description: Give you or give out items
-    usage: /give
+    usage: /<command>
   tp:
     description: Teleports you or someone to somewhere
-    usage: /tp
+    usage: |        
+        Incorrect usage of command /<command>. Examples:
+           /<command> Dinnerbone - teleports you to the player named Dinnerbone
+           /<command> Bukkit Walrus - teleports a player named Bukkit to a player named Walrus
+           /<command> * Monster - telports every online player to a player named Monster
   tphere:
-    description: Tp here
-    usage: /tphere
+    description: Tp here.
+    usage: |
+           Incorrect usage of command /<command>. Examples:
+           /<command> Dinnerbone - teleports the player named Dinnerbone to you
+           /<command> * - teleports every online player to yourself
   time:
     description: Sets/shows the current time
-    usage: /time
+    usage: |
+           Incorrect usage of command /<command>. Examples:
+           /<command> - results in current time (13.00)
+           /<command> 13 - sets the time to 13.00
+           /<command> day - makes it day
+           /<command> night - makes it night
+           /<command> raw - results in current raw time
+           /<command> =24000 - sets the current raw time (48000 is two days)
+           /<command> +1000 - adds raw time (1000 is one hour)
+           /<command> -1000 - substracts raw time
   take:
     description: Remove an item from your inventory
-    usage: /take
+    usage: Correct usage is /<command> <ItemName | ItemId> [Amount]
