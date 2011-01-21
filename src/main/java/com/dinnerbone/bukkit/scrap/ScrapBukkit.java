@@ -93,8 +93,8 @@ public class ScrapBukkit extends JavaPlugin {
         String commandName = command.getName().toLowerCase();
 
         if (commandName.equals("tp")) {
-            if (split.length == 2) {
-                String dest = split[1];
+            if (split.length == 1) {
+                String dest = split[0];
                 
                 if (dest.equalsIgnoreCase("*")) {
                     player.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
@@ -105,9 +105,9 @@ public class ScrapBukkit extends JavaPlugin {
                     }
                 }
                 return true;
-            } else if (split.length == 3) {
-                String victim = split[1];
-                String dest = split[2];
+            } else if (split.length == 2) {
+                String victim = split[0];
+                String dest = split[1];
 
                 if (dest.equalsIgnoreCase("*")) {
                     player.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
@@ -121,7 +121,7 @@ public class ScrapBukkit extends JavaPlugin {
             }
         } else if (commandName.equals("clear")) {
             Player victim = player;
-            if (split.length == 2) {
+            if (split.length == 1) {
                 victim = getServer().getPlayer(split[1]);
             }
             player.sendMessage( "Cleared " + (player == victim ? "your" : victim.getName() + "'s") + " inventory");
@@ -131,13 +131,13 @@ public class ScrapBukkit extends JavaPlugin {
         } else if (commandName.equals("take")) {
             try {
             Player victim = player;
-            if (split.length >= 2) {
-                int itemId = Integer.parseInt(split[1]);
+            if (split.length >= 1) {
+                int itemId = Integer.parseInt(split[0]);
                 int amount = 1;
-                if (split.length >= 3) {
-                    amount = Integer.parseInt(split[2]);
-                    if (split.length >= 4) {
-                        victim = getServer().getPlayer(split[3]);
+                if (split.length >= 2) {
+                    amount = Integer.parseInt(split[1]);
+                    if (split.length >= 3) {
+                        victim = getServer().getPlayer(split[2]);
                     }
                 }
 
@@ -151,34 +151,34 @@ public class ScrapBukkit extends JavaPlugin {
             }
         } else if (commandName.equals("give")) {
             try {
-                if (split.length >= 2) {
+                if (split.length >= 1) {
                     boolean isInt = true;
-                    for (int i = 0; i < split[1].length(); i++) {
-                        if (!Character.isDigit(split[1].charAt(i))) {
+                    for (int i = 0; i < split[0].length(); i++) {
+                        if (!Character.isDigit(split[0].charAt(i))) {
                             isInt = false;
                         }
                     }
                     int itemId;
                     if (isInt) {
-                        itemId = Integer.parseInt(split[1]);
+                        itemId = Integer.parseInt(split[0]);
                     }
                     else {
-                        itemId = Material.getMaterial(split[1].toUpperCase()).getId();
+                        itemId = Material.getMaterial(split[0].toUpperCase()).getId();
                     }
                     int amount = 1;
                     Byte data = null;
                     Player victim = player;
-                    if (split.length >= 3) {
-                        amount = Integer.parseInt(split[2]);
-                        if (split.length >= 4) {
-                            if(split[3].startsWith("-d")) {
-                                data = Byte.valueOf(split[3].substring(2));
-                                if(split.length >= 5) {
-                                    victim = getServer().getPlayer(split[4]);
+                    if (split.length >= 2) {
+                        amount = Integer.parseInt(split[1]);
+                        if (split.length >= 3) {
+                            if(split[2].startsWith("-d")) {
+                                data = Byte.valueOf(split[2].substring(1));
+                                if(split.length >= 4) {
+                                    victim = getServer().getPlayer(split[3]);
                                 }
                             }
                             else {
-                                victim = getServer().getPlayer(split[3]);
+                                victim = getServer().getPlayer(split[2]);
                             }
                         }
                     }
@@ -192,8 +192,8 @@ public class ScrapBukkit extends JavaPlugin {
                 player.sendMessage("Correct usage is /give <ItemName | ItemId> [Amount]");
             }
         } else if (commandName.equals("tphere")) {
-            if (split.length == 2) {
-                String victim = split[1];
+            if (split.length == 1) {
+                String victim = split[0];
 
                 if (!teleport(victim, player)) {
                     player.sendMessage(ChatColor.RED + "Could not teleport " + victim
@@ -206,13 +206,13 @@ public class ScrapBukkit extends JavaPlugin {
             long time = server.getTime();
             long relativeTime = time % 24000;
             long startOfDay = time - relativeTime;
-            if (split.length == 1) {
+            if (split.length == 0) {
                 int hours = (int)((time / 1000+8) % 24);
                 int minutes = (int) (60 * (time % 1000) / 1000);
                 player.sendMessage(String.format( "Time: %02d:%02d", hours, minutes));
                 return true;
-            } else if (split.length == 2) {
-                String timeStr = split[1];
+            } else if (split.length == 1) {
+                String timeStr = split[0];
                 if (timeStr.equalsIgnoreCase("help")) {
                     // Gets handled later.
                 } else if (timeStr.equalsIgnoreCase("raw")) {
