@@ -122,7 +122,7 @@ public class ScrapBukkit extends JavaPlugin {
         } else if (commandName.equals("clear")) {
             Player victim = player;
             if (split.length == 1) {
-                victim = getServer().getPlayer(split[1]);
+                victim = getServer().getPlayer(split[0]);
             }
             player.sendMessage( "Cleared " + (player == victim ? "your" : victim.getName() + "'s") + " inventory");
             if(player != victim) victim.sendMessage("Your inventory has been cleared by a player");
@@ -172,7 +172,7 @@ public class ScrapBukkit extends JavaPlugin {
                         amount = Integer.parseInt(split[1]);
                         if (split.length >= 3) {
                             if(split[2].startsWith("-d")) {
-                                data = Byte.valueOf(split[2].substring(1));
+                                data = Byte.valueOf(split[2].substring(2));
                                 if(split.length >= 4) {
                                     victim = getServer().getPlayer(split[3]);
                                 }
