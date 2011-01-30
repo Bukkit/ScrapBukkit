@@ -4,6 +4,7 @@ package com.dinnerbone.bukkit.scrap;
 import java.io.File;
 
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
@@ -88,9 +89,14 @@ public class ScrapBukkit extends JavaPlugin {
     
 
     @Override
-    public boolean onCommand(Player player, Command command, String commandLabel, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         String[] split = args;
         String commandName = command.getName().toLowerCase();
+
+        if (!sender.isPlayer())
+            return false;
+        
+        Player player = (Player)sender;
 
         if (commandName.equals("tp")) {
             if (split.length == 1) {
