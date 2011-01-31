@@ -74,6 +74,9 @@ public class ScrapBukkit extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
+        if (!sender.isOp()) {
+            return true;
+        }
         String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
         
@@ -235,7 +238,7 @@ public class ScrapBukkit extends JavaPlugin {
         Server server = getServer();
         long time = server.getTime();
         long relativeTime = time % 24000;
-        long startOfDay = time - relativeTime;
+        long startOfDay = time + (24000 - relativeTime); // start of the next day
         
         if (split.length == 0) {
             int hours = (int)((time / 1000+8) % 24);
