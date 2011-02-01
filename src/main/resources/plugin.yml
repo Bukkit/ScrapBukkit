@@ -1,6 +1,11 @@
 name: ScrapBukkit
 main: com.dinnerbone.bukkit.scrap.ScrapBukkit
-version: 0.1
+version: 0.2
+website: http://www.bukkit.org
+author: The Bukkit Team
+description: >
+             Miscellaneous administrative commands for Bukkit.
+             This plugin is one of the default plugins shipped with Bukkit.
 commands:
   clear:
     description: Clears a players inventory
