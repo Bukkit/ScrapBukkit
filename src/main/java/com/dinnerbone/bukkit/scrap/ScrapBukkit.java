@@ -272,13 +272,16 @@ public class ScrapBukkit extends JavaPlugin {
         if ((split.length == 1) && (!anonymousCheck(sender))) {
             String victim = split[0];
 
-            if (!teleport(victim, (Player)sender)) {
+            if (teleport(victim, (Player)sender)) {
+                sender.sendMessage("Done.");
+                return true;
+            } else {
                 sender.sendMessage(ChatColor.RED + "Could not teleport " + victim + " to you (Is the name spelt correctly?)");
                 return false;
             }
-            return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     private boolean performTimeCheck(CommandSender sender, String[] split) {
@@ -316,14 +319,20 @@ public class ScrapBukkit extends JavaPlugin {
                     world.setTime(time + Long.parseLong(timeStr.substring(1)));
                 } catch(NumberFormatException ex) {
                     sender.sendMessage("That is not a number");
-                    return false;}
+                    return false;
+                }
             } else if (timeStr.startsWith("-")) {
                 try {
                     world.setTime(time-Long.parseLong(timeStr.substring(1)));
                 } catch(NumberFormatException ex) {
                     sender.sendMessage("That is not a number");
-                    return false;}
+                    return false;
+                }
+            } else {
+                return false;
             }
+
+            sender.sendMessage("Done.");
             return true;
         }
         return false;
