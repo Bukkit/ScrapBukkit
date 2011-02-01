@@ -3,28 +3,29 @@ main: com.dinnerbone.bukkit.scrap.ScrapBukkit
 version: 0.1
 commands:
   clear:
-    description: Clears your inventory
-    usage: /<command>
+    description: Clears a players inventory
+    usage: /<command> [player]
   give:
     description: Give you or give out items
-    usage: /<command>
+    usage: |
+           /<command> [player] item [amount]
+           Example: /<command> walrus bukkit 2
   tp:
-    description: Teleports you or someone to somewhere
-    usage: |        
-        Incorrect usage of command /<command>. Examples:
-           /<command> Dinnerbone - teleports you to the player named Dinnerbone
-           /<command> Bukkit Walrus - teleports a player named Bukkit to a player named Walrus
-           /<command> * Monster - telports every online player to a player named Monster
+    description: Teleports a player to another player
+    usage: |
+           /<command> [victim] <destination>
+           Example: /<command> Dinnerbone - teleports you to the player named Dinnerbone
+           Example: /<command> Bukkit Walrus - teleports a player named Bukkit to a player named Walrus
+           Example: /<command> * Monster - telports every online player to a player named Monster
   tphere:
     description: Tp here.
     usage: |
-           Incorrect usage of command /<command>. Examples:
-           /<command> Dinnerbone - teleports the player named Dinnerbone to you
-           /<command> * - teleports every online player to yourself
+           /<command> <victim>
+           Example: /<command> Dinnerbone - teleports the player named Dinnerbone to you
+           Example: /<command> * - teleports every online player to yourself
   time:
     description: Sets/shows the current time
     usage: |
-           Incorrect usage of command /<command>. Examples:
            /<command> - results in current time (13.00)
            /<command> 13 - sets the time to 13.00
            /<command> day - makes it day
@@ -34,5 +35,9 @@ commands:
            /<command> +1000 - adds raw time (1000 is one hour)
            /<command> -1000 - substracts raw time
   take:
-    description: Remove an item from your inventory
-    usage: Correct usage is /<command> <ItemName | ItemId> [Amount]
+    description: Remove an item from a players inventory
+    usage: |
+           /<command> [player] <item> [count]
+           Use count = -1 (default) to remove all instances of an item
+           Example: /<command> griefer TNT -1
+           Example: /<command> duplicator diamond_pickaxe 1

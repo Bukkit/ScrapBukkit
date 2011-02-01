@@ -2,6 +2,7 @@
 package com.dinnerbone.bukkit.scrap;
 
 import java.io.File;
+import java.util.List;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -10,10 +11,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.plugin.PluginManager;
 
 /**
  * Miscellaneous administrative commands
@@ -70,138 +71,181 @@ public class ScrapBukkit extends JavaPlugin {
         victim.teleportTo(destination.getLocation());
         return true;
     }
-    
 
+    private boolean anonymousCheck(CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Cannot execute that command, I don't know who you are!");
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
     @Override
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        if (!sender.isOp()) {
-            return true;
-        }
         String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
-        
-        Player player = null;
-        if (sender.isPlayer()) {
-            player = (Player)sender;
-        } else if (args.length > 0){
-            // Assume first parameter of args is a player and remove it. null if player not found. 
-            player = getServer().getPlayer(args[0]);
-            trimmedArgs = new String[args.length-1];
-            for(int i = 1; i < args.length; i++)
-                trimmedArgs[i-1] = args[i];
-        }
 
         if (commandName.equals("tp")) {
-            return performTeleport(sender, trimmedArgs, player);
+            return performTeleport(sender, trimmedArgs);
         } else if (commandName.equals("clear")) {
-            return performInventoryClean(sender, trimmedArgs, player);
+            return performInventoryClean(sender, trimmedArgs);
         } else if (commandName.equals("take")) {
-            return performTake(sender, trimmedArgs, player);
+            return performTake(sender, trimmedArgs);
         } else if (commandName.equals("give")) {
-            return performGive(sender, trimmedArgs, player);
+            return performGive(sender, trimmedArgs);
         } else if (commandName.equals("tphere")) {
-            return performTPHere(sender, trimmedArgs, player);
+            return performTPHere(sender, trimmedArgs);
         } else if (commandName.equals("time")) {
             return performTimeCheck(sender, trimmedArgs);
         }
         return false;
     }
 
-    private boolean performGive(CommandSender sender, String[] split, Player player) {
-        try {
-            if (split.length >= 1) {
-                boolean isInt = true;
-                for (int i = 0; i < split[0].length(); i++) {
-                    if (!Character.isDigit(split[0].charAt(i))) {
-                        isInt = false;
-                    }
-                }
-                int itemId;
-                if (isInt) {
-                    itemId = Integer.parseInt(split[0]);
-                }
-                else {
-                    itemId = Material.getMaterial(split[0].toUpperCase()).getId();
-                }
-                int amount = 1;
-                Byte data = null;
-                Player victim = player;
-                if (split.length >= 2) {
-                    amount = Integer.parseInt(split[1]);
-                    if (split.length >= 3) {
-                        if(split[2].startsWith("-d")) {
-                            data = Byte.valueOf(split[2].substring(2));
-                            if(split.length >= 4) {
-                                victim = getServer().getPlayer(split[3]);
-                            }
-                        }
-                        else {
-                            victim = getServer().getPlayer(split[2]);
-                        }
-                    }
-                }
+    private boolean performGive(CommandSender sender, String[] split) {
+        if ((split.length > 3) || (split.length == 0)) {
+            return false;
+        }
+        if (!sender.isOp()) {
+            sender.sendMessage("You do not have permission to give players items");
+            return false;
+        }
 
-                if (victim == null) {
-                    sender.sendMessage("Give failed. Player not found");
-                    return false;
-                }
-                
-                sender.sendMessage("Giving " + amount + " " + Material.getMaterial(itemId).name() + " to " + (player == victim ? "yourself" : player.getName()));
-                victim.getInventory().addItem(new ItemStack(itemId, amount, (byte)0, data));
-                if(player != victim) victim.sendMessage("A player has added some " + Material.getMaterial(itemId).name() + "to your inventory");
-                return true;
+        Player player = null;
+        Material material = null;
+        int count = 1;
+
+        if (split.length >= 2) {
+            player = matchPlayer(split, sender);
+            if (player == null) return false;
+            material = Material.matchMaterial(split[1]);
+        } else {
+            if (anonymousCheck(sender)) return false;
+            player = (Player)sender;
+            material = Material.matchMaterial(split[0]);
+        }
+
+        if (split.length >= 3) {
+            try {
+                count = Integer.parseInt(split[2]);
+            } catch (NumberFormatException ex) {
+                sender.sendMessage(ChatColor.RED + "'" + split[2] + "' is not a number!");
+                return false;
             }
-        } catch (Exception exc) {
-            sender.sendMessage("Correct usage is /give <ItemName | ItemId> [Amount]");
         }
-        return false;
-    }
 
-    private boolean performTake(CommandSender sender, String[] split, Player player) {
-        try {
-        Player victim = player;
-        if (split.length >= 1) {
-            int itemId = Integer.parseInt(split[0]);
-            int amount = 1;
-            if (split.length >= 2) {
-                amount = Integer.parseInt(split[1]);
-                if (split.length >= 3) {
-                    victim = getServer().getPlayer(split[2]);
-                }
-            }
+        if (material == null) {
+            sender.sendMessage(ChatColor.RED + "Unknown item");
+            return false;
+        }
 
-            sender.sendMessage("Taking " + amount + " " + Material.getMaterial(itemId).name() + " from " + (player == victim ? "yourself" : player.getName()));
-            victim.getInventory().removeItem(new ItemStack(itemId, amount));
-            if(player != victim) victim.sendMessage("A player has removed some " + Material.getMaterial(itemId).name() + "from your inventory");
-            return true;
-        }
-        } catch (Exception exc) {
-            player.sendMessage("Correct usage is /take <ItemName | ItemId> [Amount]");
-        }
-        return false;
-    }
-
-    private boolean performInventoryClean(CommandSender sender, String[] split, Player player) {
-        Player victim = player;
-        if (split.length == 1) {
-            victim = getServer().getPlayer(split[0]);
-        }
-        sender.sendMessage( "Cleared " + (player == victim ? "your" : victim.getName() + "'s") + " inventory");
-        if(player != victim) victim.sendMessage("Your inventory has been cleared by a player");
-        victim.getInventory().clear();
+        player.getInventory().addItem(new ItemStack(material, count));
+        sender.sendMessage("Given " + player.getDisplayName() + " " + count + " " + material.toString());
         return true;
     }
 
-    private boolean performTeleport(CommandSender sender, String[] split, Player player) {
+    private Player matchPlayer(String[] split, CommandSender sender) {
+        Player player;
+        List<Player> players = getServer().matchPlayer(split[0]);
+        if (players.isEmpty()) {
+            sender.sendMessage(ChatColor.RED + "Unknown player");
+            player = null;
+        } else {
+            player = players.get(0);
+        }
+        return player;
+    }
+
+    private boolean performTake(CommandSender sender, String[] split) {
+        if ((split.length > 3) || (split.length == 0)) {
+            return false;
+        }
+        if (!sender.isOp()) {
+            sender.sendMessage("You do not have permission to take players' items");
+            return false;
+        }
+
+        Player player = null;
+        Material material = null;
+        int count = -1;
+
+        if (split.length >= 2) {
+            player = matchPlayer(split, sender);
+            if (player == null) return false;
+            material = Material.matchMaterial(split[1]);
+        } else {
+            if (anonymousCheck(sender)) return false;
+            player = (Player)sender;
+            material = Material.matchMaterial(split[0]);
+        }
+
+        if (split.length >= 3) {
+            try {
+                count = Integer.parseInt(split[2]);
+            } catch (NumberFormatException ex) {
+                sender.sendMessage(ChatColor.RED + "'" + split[2] + "' is not a number!");
+                return false;
+            }
+        }
+
+        if (material == null) {
+            sender.sendMessage(ChatColor.RED + "Unknown item");
+            return false;
+        }
+
+        if (count < 0) {
+            player.getInventory().remove(material);
+        } else {
+            player.getInventory().remove(new ItemStack(material, count));
+        }
+        sender.sendMessage("Took " + count + " " + material.toString() + " from " + player.getDisplayName());
+        return true;
+    }
+
+    private boolean performInventoryClean(CommandSender sender, String[] split) {
+        if (!sender.isOp()) {
+            sender.sendMessage("You do not have permission to clean players' inventories");
+            return false;
+        }
+        if (split.length > 1) {
+            return false;
+        }
+
+        Player player = null;
+
         if (split.length == 1) {
+            player = matchPlayer(split, sender);
+            if (player == null) return false;
+        } else if (anonymousCheck(sender)) {
+            return false;
+        } else {
+            player = (Player)sender;
+        }
+
+        sender.sendMessage("Cleared inventory of " + player.getDisplayName());
+        player.getInventory().clear();
+        return true;
+    }
+
+    private boolean performTeleport(CommandSender sender, String[] split) {
+        if (!sender.isOp()) {
+            sender.sendMessage("You do not have permission to teleport players");
+            return false;
+        }
+        
+        if (split.length == 1) {
+            if (anonymousCheck(sender)) return false;
+            Player player = (Player)sender;
             String dest = split[0];
             
             if (dest.equalsIgnoreCase("*")) {
                 sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
+                return false;
             } else {
                 if (!teleport(player, dest)) {
                     sender.sendMessage(ChatColor.RED + "Could not teleport to " + dest
                             + " (Is the name spelt correctly?)");
+                    return false;
                 }
             }
             return true;
@@ -211,10 +255,12 @@ public class ScrapBukkit extends JavaPlugin {
 
             if (dest.equalsIgnoreCase("*")) {
                 sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
+                return false;
             } else {
                 if (!teleport(victim, dest)) {
                     sender.sendMessage(ChatColor.RED + "Could not teleport "
                             + victim + " to " + dest + " (Are the names spelt correctly?)");
+                    return false;
                 }
             }
             return true;
@@ -222,12 +268,13 @@ public class ScrapBukkit extends JavaPlugin {
         return false;
     }
     
-    private boolean performTPHere(CommandSender sender, String[] split, Player player) {
-        if (split.length == 1) {
+    private boolean performTPHere(CommandSender sender, String[] split) {
+        if ((split.length == 1) && (!anonymousCheck(sender))) {
             String victim = split[0];
 
-            if (!teleport(victim, player)) {
+            if (!teleport(victim, (Player)sender)) {
                 sender.sendMessage(ChatColor.RED + "Could not teleport " + victim + " to you (Is the name spelt correctly?)");
+                return false;
             }
             return true;
         }
@@ -235,10 +282,8 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     private boolean performTimeCheck(CommandSender sender, String[] split) {
-        Server server = getServer();
-        long time = server.getTime();
-        long relativeTime = time % 24000;
-        long startOfDay = time + (24000 - relativeTime); // start of the next day
+        World world = sender instanceof Player ? ((Player)sender).getWorld() : getServer().getWorlds()[0];
+        long time = world.getTime();
         
         if (split.length == 0) {
             int hours = (int)((time / 1000+8) % 24);
@@ -246,32 +291,38 @@ public class ScrapBukkit extends JavaPlugin {
             sender.sendMessage(String.format( "Time: %02d:%02d", hours, minutes));
             return true;
         } else if (split.length == 1) {
+            if (!sender.isOp()) {
+                sender.sendMessage("You do not have permission to alter the time");
+            }
+
             String timeStr = split[0];
             if (timeStr.equalsIgnoreCase("help")) {
                 // Gets handled later.
             } else if (timeStr.equalsIgnoreCase("raw")) {
                 sender.sendMessage("Raw:  " + time);
             } else if (timeStr.equalsIgnoreCase("day")) {
-                server.setTime(startOfDay);
+                world.setTime(0);
             } else if (timeStr.equalsIgnoreCase("night")) {
-                server.setTime(startOfDay + 13000);
+                world.setTime(13000);
             } else if (timeStr.startsWith("=")) {
                 try {
-                server.setTime(Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) { }
+                    world.setTime(Long.parseLong(timeStr.substring(1)));
+                } catch(NumberFormatException ex) {
+                    sender.sendMessage("That is not a number");
+                    return false;
+                }
             } else if (timeStr.startsWith("+")) {
                 try {
-                server.setTime(time+Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) { }
+                    world.setTime(time + Long.parseLong(timeStr.substring(1)));
+                } catch(NumberFormatException ex) {
+                    sender.sendMessage("That is not a number");
+                    return false;}
             } else if (timeStr.startsWith("-")) {
                 try {
-                server.setTime(time-Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) { }
-            } else {
-                try {
-                    relativeTime = (Integer.parseInt(timeStr)*1000-8000+24000)%24000;
-                    server.setTime(startOfDay + relativeTime);
-                } catch(NumberFormatException ex) { }
+                    world.setTime(time-Long.parseLong(timeStr.substring(1)));
+                } catch(NumberFormatException ex) {
+                    sender.sendMessage("That is not a number");
+                    return false;}
             }
             return true;
         }
