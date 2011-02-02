@@ -269,6 +269,10 @@ public class ScrapBukkit extends JavaPlugin {
     }
     
     private boolean performTPHere(CommandSender sender, String[] split) {
+        if (!sender.isOp()) {
+            sender.sendMessage("You do not have permission to teleport players");
+            return false;
+        }
         if ((split.length == 1) && (!anonymousCheck(sender))) {
             String victim = split[0];
 
@@ -296,6 +300,7 @@ public class ScrapBukkit extends JavaPlugin {
         } else if (split.length == 1) {
             if (!sender.isOp()) {
                 sender.sendMessage("You do not have permission to alter the time");
+                return false;
             }
 
             String timeStr = split[0];
