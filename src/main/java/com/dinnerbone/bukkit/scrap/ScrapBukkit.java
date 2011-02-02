@@ -84,6 +84,7 @@ public class ScrapBukkit extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
+        sender.sendMessage("ScrapBukkit thinks you gave the command '"+ commandName + "' with args: " + args.toString());
 
         if (commandName.equals("/tp")) {
             return performTeleport(sender, trimmedArgs);
