@@ -1,3 +1,4 @@
+
 package com.dinnerbone.bukkit.scrap;
 
 import java.io.File;
@@ -84,19 +85,18 @@ public class ScrapBukkit extends JavaPlugin {
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
-        sender.sendMessage("ScrapBukkit thinks you gave the command '"+ commandName + "' with args: " + args.toString());
 
-        if (commandName.equals("/tp")) {
+        if (commandName.equals("tp")) {
             return performTeleport(sender, trimmedArgs);
-        } else if (commandName.equals("/clear")) {
+        } else if (commandName.equals("clear")) {
             return performInventoryClean(sender, trimmedArgs);
-        } else if (commandName.equals("/take")) {
+        } else if (commandName.equals("take")) {
             return performTake(sender, trimmedArgs);
-        } else if (commandName.equals("/give")) {
+        } else if (commandName.equals("give")) {
             return performGive(sender, trimmedArgs);
-        } else if (commandName.equals("/tphere")) {
+        } else if (commandName.equals("tphere")) {
             return performTPHere(sender, trimmedArgs);
-        } else if (commandName.equals("/time")) {
+        } else if (commandName.equals("time")) {
             return performTimeCheck(sender, trimmedArgs);
         }
         return false;
