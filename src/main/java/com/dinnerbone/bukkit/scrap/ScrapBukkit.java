@@ -1,4 +1,3 @@
-
 package com.dinnerbone.bukkit.scrap;
 
 import java.io.File;
@@ -9,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.World;
@@ -18,23 +18,24 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Miscellaneous administrative commands
- *
+ * 
  * @author Dinnerbone
  */
 public class ScrapBukkit extends JavaPlugin {
-
     public ScrapBukkit(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
         super(pluginLoader, instance, desc, folder, plugin, cLoader);
     }
 
     public void onDisable() {
-        //PluginManager pm = getServer().getPluginManager();
+        // PluginManager pm = getServer().getPluginManager();
     }
 
-    public void onEnable() {       
-        // EXAMPLE: Custom code, here we just output some info so we can check all is well
+    public void onEnable() {
+        // EXAMPLE: Custom code, here we just output some info so we can check
+        // all is well
         PluginDescriptionFile pdfFile = this.getDescription();
-        System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+        System.out.println(pdfFile.getName() + " version "
+                + pdfFile.getVersion() + " is enabled!");
     }
 
     protected boolean teleport(final Player victim, final String destName) {
@@ -49,7 +50,6 @@ public class ScrapBukkit extends JavaPlugin {
 
     protected boolean teleport(final String victimName, final String destName) {
         Player destination = getServer().getPlayer(destName);
-
         if (victimName.equalsIgnoreCase("*")) {
             Player[] players = getServer().getOnlinePlayers();
             for (Player victim : players) {
@@ -65,10 +65,29 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     protected boolean teleport(final Player victim, final Player destination) {
-        if ((victim == null) || (destination == null)) 
+        if ((victim == null) || (destination == null))
             return false;
-        
         victim.teleportTo(destination.getLocation());
+        return true;
+    }
+
+    protected boolean teleport(final Player victim, Double x, Double y, Double z) {
+        World world = victim instanceof Player ? ((Player) victim).getWorld() : getServer().getWorlds()[0];
+        if (victim == null)
+            return false;
+        Player player = victim;
+        player.teleportTo(new Location(world, x, y, z));
+        player.sendMessage("teleported to x:" + x + " y:" + y + " z:" + z);
+        return true;
+    }
+
+    protected boolean teleport(final String victim, final Player sender, Double x, Double y, Double z) {
+        World world = sender instanceof Player ? ((Player) sender).getWorld() : getServer().getWorlds()[0];
+        if (getServer().getPlayer(victim) == null)
+            return false;
+        Player player = getServer().getPlayer(victim);
+        player.teleportTo(new Location(world, x, y, z));
+        player.sendMessage(sender.getName() + " has teleported you to x:" + x + " y:" + y + " z:" + z);
         return true;
     }
 
@@ -80,7 +99,7 @@ public class ScrapBukkit extends JavaPlugin {
             return false;
         }
     }
-    
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
         String[] trimmedArgs = args;
@@ -110,36 +129,48 @@ public class ScrapBukkit extends JavaPlugin {
             sender.sendMessage("You do not have permission to give players items");
             return false;
         }
-
         Player player = null;
         Material material = null;
         int count = 1;
-
-        if (split.length >= 2) {
-            player = matchPlayer(split, sender);
-            if (player == null) return false;
-            material = Material.matchMaterial(split[1]);
-        } else {
-            if (anonymousCheck(sender)) return false;
-            player = (Player)sender;
-            material = Material.matchMaterial(split[0]);
+        String[] gData = null;
+        Byte bytedata = null;
+        if (split.length >= 1) {
+            gData = split[0].split(":");
+            material = Material.matchMaterial(gData[0]);
+            if (gData.length == 2) {
+                bytedata = Byte.valueOf(gData[1]);
+            }
         }
-
-        if (split.length >= 3) {
+        if (split.length >= 2) {
             try {
-                count = Integer.parseInt(split[2]);
+                count = Integer.parseInt(split[1]);
             } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "'" + split[2] + "' is not a number!");
+                sender.sendMessage(ChatColor.RED + "'" + split[1] + "' is not a number!");
                 return false;
             }
         }
-
+        if (split.length == 3) {
+            player = getServer().getPlayer(split[2]);
+            if (player == null) {
+                sender.sendMessage(ChatColor.RED + "'" + split[2] + "' is not a valid player!");
+                return false;
+            }
+        } else {
+            if (anonymousCheck(sender)) {
+                return false;
+            } else {
+                player = (Player) sender;
+            }
+        }
         if (material == null) {
             sender.sendMessage(ChatColor.RED + "Unknown item");
             return false;
         }
-
-        player.getInventory().addItem(new ItemStack(material, count));
+        if (bytedata != null) {
+            player.getInventory().addItem(new ItemStack(material, count, (short) 0, bytedata));
+        } else {
+            player.getInventory().addItem(new ItemStack(material, count));
+        }
         sender.sendMessage("Given " + player.getDisplayName() + " " + count + " " + material.toString());
         return true;
     }
@@ -171,11 +202,15 @@ public class ScrapBukkit extends JavaPlugin {
 
         if (split.length >= 2) {
             player = matchPlayer(split, sender);
-            if (player == null) return false;
+            if (player == null) {
+                return false;
+            }
             material = Material.matchMaterial(split[1]);
         } else {
-            if (anonymousCheck(sender)) return false;
-            player = (Player)sender;
+            if (anonymousCheck(sender)) {
+                return false;
+            }
+            player = (Player) sender;
             material = Material.matchMaterial(split[0]);
         }
 
@@ -215,11 +250,12 @@ public class ScrapBukkit extends JavaPlugin {
 
         if (split.length == 1) {
             player = matchPlayer(split, sender);
-            if (player == null) return false;
+            if (player == null)
+                return false;
         } else if (anonymousCheck(sender)) {
             return false;
         } else {
-            player = (Player)sender;
+            player = (Player) sender;
         }
 
         sender.sendMessage("Cleared inventory of " + player.getDisplayName());
@@ -232,19 +268,20 @@ public class ScrapBukkit extends JavaPlugin {
             sender.sendMessage("You do not have permission to teleport players");
             return false;
         }
-        
+
         if (split.length == 1) {
-            if (anonymousCheck(sender)) return false;
-            Player player = (Player)sender;
+            if (anonymousCheck(sender))
+                return false;
+            Player player = (Player) sender;
             String dest = split[0];
-            
+
             if (dest.equalsIgnoreCase("*")) {
-                sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
+                sender.sendMessage(ChatColor.RED
+                        + "Incorrect usage of wildchar *");
                 return false;
             } else {
                 if (!teleport(player, dest)) {
-                    sender.sendMessage(ChatColor.RED + "Could not teleport to " + dest
-                            + " (Is the name spelt correctly?)");
+                    sender.sendMessage(ChatColor.RED + "Could not teleport to " + dest + " (Is the name spelt correctly?)");
                     return false;
                 }
             }
@@ -252,22 +289,60 @@ public class ScrapBukkit extends JavaPlugin {
         } else if (split.length == 2) {
             String victim = split[0];
             String dest = split[1];
-
             if (dest.equalsIgnoreCase("*")) {
                 sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
                 return false;
             } else {
                 if (!teleport(victim, dest)) {
-                    sender.sendMessage(ChatColor.RED + "Could not teleport "
-                            + victim + " to " + dest + " (Are the names spelt correctly?)");
+                    sender.sendMessage(ChatColor.RED + "Could not teleport " + victim + " to " + dest + " (Are the names spelt correctly?)");
                     return false;
                 }
             }
             return true;
+        } else if (split.length == 3) {
+            Player player = null;
+            if (anonymousCheck(sender)) {
+                return false;
+            } else {
+                player = (Player) sender;
+            }
+            Double tx = null;
+            Double ty = null;
+            Double tz = null;
+            try {
+                tx = Double.valueOf(split[0]);
+                ty = Double.valueOf(split[1]);
+                tz = Double.valueOf(split[2]);
+            } catch (NumberFormatException ex) {
+                sender.sendMessage(ChatColor.RED + "Not valid coordinates!");
+                return false;
+            }
+            teleport(player, tx, ty, tz);
+            return true;
+        } else if (split.length == 4) {
+            Player player = null;
+            if (anonymousCheck(sender)) {
+                return false;
+            } else {
+                player = (Player) sender;
+            }
+            Double tx = null;
+            Double ty = null;
+            Double tz = null;
+            try {
+                tx = Double.valueOf(split[1]);
+                ty = Double.valueOf(split[2]);
+                tz = Double.valueOf(split[3]);
+            } catch (NumberFormatException ex) {
+                sender.sendMessage(ChatColor.RED + "Not valid coordinates!");
+                return false;
+            }
+            teleport(split[0], player, tx, ty, tz);
+            return true;
         }
         return false;
     }
-    
+
     private boolean performTPHere(CommandSender sender, String[] split) {
         if (!sender.isOp()) {
             sender.sendMessage("You do not have permission to teleport players");
@@ -276,7 +351,7 @@ public class ScrapBukkit extends JavaPlugin {
         if ((split.length == 1) && (!anonymousCheck(sender))) {
             String victim = split[0];
 
-            if (teleport(victim, (Player)sender)) {
+            if (teleport(victim, (Player) sender)) {
                 sender.sendMessage("Done.");
                 return true;
             } else {
@@ -289,13 +364,13 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     private boolean performTimeCheck(CommandSender sender, String[] split) {
-        World world = sender instanceof Player ? ((Player)sender).getWorld() : getServer().getWorlds()[0];
+        World world = sender instanceof Player ? ((Player) sender).getWorld() : getServer().getWorlds()[0];
         long time = world.getTime();
-        
+
         if (split.length == 0) {
-            int hours = (int)((time / 1000+8) % 24);
+            int hours = (int) ((time / 1000 + 8) % 24);
             int minutes = (int) (60 * (time % 1000) / 1000);
-            sender.sendMessage(String.format( "Time: %02d:%02d", hours, minutes));
+            sender.sendMessage(String.format("Time: %02d:%02d", hours, minutes));
             return true;
         } else if (split.length == 1) {
             if (!sender.isOp()) {
@@ -307,7 +382,7 @@ public class ScrapBukkit extends JavaPlugin {
             if (timeStr.equalsIgnoreCase("help")) {
                 // Gets handled later.
             } else if (timeStr.equalsIgnoreCase("raw")) {
-                sender.sendMessage("Raw:  " + time);
+                sender.sendMessage("Raw: " + world.getFullTime());
             } else if (timeStr.equalsIgnoreCase("day")) {
                 world.setTime(0);
             } else if (timeStr.equalsIgnoreCase("night")) {
@@ -315,28 +390,27 @@ public class ScrapBukkit extends JavaPlugin {
             } else if (timeStr.startsWith("=")) {
                 try {
                     world.setTime(Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) {
+                } catch (NumberFormatException ex) {
                     sender.sendMessage("That is not a number");
                     return false;
                 }
             } else if (timeStr.startsWith("+")) {
                 try {
                     world.setTime(time + Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) {
+                } catch (NumberFormatException ex) {
                     sender.sendMessage("That is not a number");
                     return false;
                 }
             } else if (timeStr.startsWith("-")) {
                 try {
-                    world.setTime(time-Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) {
+                    world.setTime(time - Long.parseLong(timeStr.substring(1)));
+                } catch (NumberFormatException ex) {
                     sender.sendMessage("That is not a number");
                     return false;
                 }
             } else {
                 return false;
             }
-
             sender.sendMessage("Done.");
             return true;
         }
