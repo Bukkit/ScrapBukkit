@@ -1,7 +1,6 @@
 
 package com.dinnerbone.bukkit.scrap;
 
-import java.io.File;
 import java.util.List;
 
 import org.bukkit.command.Command;
@@ -11,10 +10,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
+import org.bukkit.plugin.PluginDescription;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -24,14 +21,11 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class ScrapBukkit extends JavaPlugin {
 
-    public void onDisable() {
-        //PluginManager pm = getServer().getPluginManager();
-    }
-
-    public void onEnable() {       
+    public boolean onEnable() {       
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
-        PluginDescriptionFile pdfFile = this.getDescription();
-        System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+        PluginDescription description = this.getDescription();
+        System.out.println( description.getName() + " version " + description.getVersion() + " is enabled!" );
+        return true;
     }
 
     protected boolean teleport(final Player victim, final String destName) {
