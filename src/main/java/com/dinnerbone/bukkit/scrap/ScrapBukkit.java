@@ -74,7 +74,7 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     protected boolean teleport(final Player victim, Double x, Double y, Double z) {
-        World world = victim instanceof Player ? ((Player) victim).getWorld() : getServer().getWorlds()[0];
+        World world = victim instanceof Player ? ((Player) victim).getWorld() : getServer().getWorlds().get(0);
         if (victim == null)
             return false;
 
@@ -85,7 +85,7 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     protected boolean teleport(final String victim, final Player sender, Double x, Double y, Double z) {
-        World world = sender instanceof Player ? ((Player) sender).getWorld() : getServer().getWorlds()[0];
+        World world = sender instanceof Player ? ((Player) sender).getWorld() : getServer().getWorlds().get(0);
         if (getServer().getPlayer(victim) == null)
             return false;
 
@@ -361,7 +361,7 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     private boolean performTimeCheck(CommandSender sender, String[] split) {
-        World world = sender instanceof Player ? ((Player)sender).getWorld() : getServer().getWorlds()[0];
+        World world = sender instanceof Player ? ((Player)sender).getWorld() : getServer().getWorlds().get(0);
         long time = world.getTime();
         
         if (split.length == 0) {
