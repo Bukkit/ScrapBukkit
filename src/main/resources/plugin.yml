@@ -1,6 +1,6 @@
 name: ScrapBukkit
 main: com.dinnerbone.bukkit.scrap.ScrapBukkit
-version: 0.2
+version: 0.2.1
 website: http://www.bukkit.org
 author: The Bukkit Team
 description: >
@@ -8,41 +8,51 @@ description: >
              This plugin is one of the default plugins shipped with Bukkit.
 commands:
   clear:
-    description: Clears a players inventory
-    usage: /<command> [player]
-  give:
-    description: Give you or give out items
+    description: Clears your own or a player's inventory.
     usage: |
-           /<command> [player] item [amount]
-           Example: /<command> walrus bukkit 2
+           /<command> [player]
+           Example: /<command> - clears your own inventory.
+           Example: /<command> Bukkit - clears Bukkit's inventory.
+  give:
+    description: Gives yourself or someone else items. Supports item IDs or names.
+    usage: |
+           /<command> item[:data] [amount] [player]
+           Example: /<command> 2 - gives you 1 grass.
+           Example: /<command> 2 20 - gives you 20 grass.
+           Example: /<command> 2 -1 - gives you unlimited grass.
+           Example: /<command> 2 64 Bukkit - gives a player named Bukkit 64 grass.
+           Example: /<command> 35:12 200 - gives you 200 brown wool.
   tp:
-    description: Teleports a player to another player
+    description: Teleports yourself or a player to another player or specific coordinates.
     usage: |
            /<command> [victim] <destination>
-           Example: /<command> Dinnerbone - teleports you to the player named Dinnerbone
-           Example: /<command> Bukkit Walrus - teleports a player named Bukkit to a player named Walrus
-           Example: /<command> * Monster - telports every online player to a player named Monster
+           Example: /<command> Dinnerbone - teleports you to the player named Dinnerbone.
+           Example: /<command> Bukkit Walrus - teleports a player named Bukkit to a player named Walrus.
+           Example: /<command> * Monster - telports every online player to a player named Monster.
+           Example: /<command> 100 200 100 - teleports you to the location 100,200,100 (X,Y,Z).
+           Example: /<command> Bukkit 100 200 100 - teleports a player named Bukkit to the location 100,200,100.
   tphere:
-    description: Tp here.
+    description: Teleports someone to yourself.
     usage: |
            /<command> <victim>
            Example: /<command> Dinnerbone - teleports the player named Dinnerbone to you
            Example: /<command> * - teleports every online player to yourself
   time:
-    description: Sets/shows the current time
+    description: Sets/shows the current time.
     usage: |
-           /<command> - results in current time (13.00)
+           /<command> - displays the current time (13.00)
            /<command> 13 - sets the time to 13.00
            /<command> day - makes it day
            /<command> night - makes it night
-           /<command> raw - results in current raw time
+           /<command> raw - displays the current raw time
            /<command> =24000 - sets the current raw time (48000 is two days)
            /<command> +1000 - adds raw time (1000 is one hour)
-           /<command> -1000 - substracts raw time
+           /<command> -1000 - subtracts raw time
   take:
-    description: Remove an item from a players inventory
+    description: Removes an item from your own or a player's inventory. Supports item IDs or names.
     usage: |
            /<command> [player] <item> [count]
            Use count = -1 (default) to remove all instances of an item
-           Example: /<command> griefer TNT -1
-           Example: /<command> duplicator diamond_pickaxe 1
+           Example: /<command> TNT - removes all TNT from your inventory.
+           Example: /<command> griefer TNT -1 - removes all TNT from a player named griefer's inventory.
+           Example: /<command> duplicator diamond_pickaxe 1 - removes 1 diamond pickaxe from a player named duplicator's inventory.
