@@ -24,10 +24,6 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class ScrapBukkit extends JavaPlugin {
 
-    public ScrapBukkit(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
-        super(pluginLoader, instance, desc, folder, plugin, cLoader);
-    }
-
     public void onDisable() {
         //PluginManager pm = getServer().getPluginManager();
     }
