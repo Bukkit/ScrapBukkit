@@ -62,3 +62,7 @@ commands:
     description: Tells you your location
     usage: |
            /<command>
+  compass:
+    description: Get the way that you are facing
+    usage: |
+           /<command>
