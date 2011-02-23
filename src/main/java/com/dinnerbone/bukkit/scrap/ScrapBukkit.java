@@ -322,10 +322,7 @@ public class ScrapBukkit extends JavaPlugin {
             checkPermissions(sender, "scrapbukkit.take.other");
             
             player = matchPlayer(split, sender);
-            if (player == null) {
-                sender.sendMessage("Didn't find such a player!");
-                return true;
-            }
+            if (player == null) { return true; }
             material = Material.matchMaterial(split[1]);
         } else {
             if (anonymousCheck(sender)) return true;
@@ -369,10 +366,7 @@ public class ScrapBukkit extends JavaPlugin {
             checkPermissions(sender, "scrapbukkit.clean.other");
             
             player = matchPlayer(split, sender);
-            if (player == null) {
-                sender.sendMessage("Didn't find such a player!");
-                return true;
-            }
+            if (player == null) { return true; }
         } else if (anonymousCheck(sender)) {
             return true;
         } else {
