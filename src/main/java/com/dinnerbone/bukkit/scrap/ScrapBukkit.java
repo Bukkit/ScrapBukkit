@@ -1,11 +1,18 @@
 
 package com.dinnerbone.bukkit.scrap;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.Listener;
+import org.bukkit.event.Event.Priority;
+import org.bukkit.event.player.PlayerListener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -22,14 +29,32 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public class ScrapBukkit extends JavaPlugin {
 
+    private static Logger logger = Logger.getLogger("Minecraft.ScrapBukkit");
+    
+    private Map<String, String> messageTargets = new HashMap<String, String>();
+    
     public void onDisable() {
         //PluginManager pm = getServer().getPluginManager();
+        
+        messageTargets.clear();
     }
 
     public void onEnable() {       
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+        
+        PlayerListener playerListener = new ScrapBukkitPlayerListener(this);
+        
+        registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Monitor);
+    }
+    
+    public void forgetPlayer(Player player) {
+        messageTargets.remove(player.getName());
+    }
+    
+    private void registerEvent(Event.Type type, Listener listener, Priority priority) {
+        getServer().getPluginManager().registerEvent(type, listener, priority, this);
     }
 
     private String getCardinalDirection(Player player) {
@@ -120,6 +145,38 @@ public class ScrapBukkit extends JavaPlugin {
         player.sendMessage(sender.getName() + " has teleported you to x:" + x + " y:" + y + " z:" + z);
         return true;
     }
+    
+    protected boolean sendWhisper(CommandSender sender, String to, String message) {
+        Player player = null;
+        String fromName = sender instanceof Player ? ((Player) sender).getName() : "Console";
+        String toName;
+
+        if (to.equalsIgnoreCase("Console")) {
+            toName = "Console";
+            logger.info("(From " + fromName + "): " + message);
+        } else {
+            player = matchPlayer(to, sender);
+            if (player == null) {
+                return false;
+            }
+
+            toName = player.getName();
+            player.sendMessage(ChatColor.GRAY + "(From " + fromName + "): " + ChatColor.WHITE + message);
+        }
+        
+        sender.sendMessage(ChatColor.GRAY + "(To " + toName + "): " + ChatColor.WHITE + message);
+        
+        messageTargets.put(fromName, toName);
+        
+        // sk: This makes it easier to reply, but we're not going to
+        // override an existing entry so that someone doesn't accidentally 
+        // reply to someone that they don't want to reply to (due to timing)
+        if (!messageTargets.containsKey(toName)) {
+            messageTargets.put(toName, fromName);
+        }
+        
+        return true;
+    }
 
     private boolean anonymousCheck(CommandSender sender) {
         if (!(sender instanceof Player)) {
@@ -140,6 +197,10 @@ public class ScrapBukkit extends JavaPlugin {
                 return performTeleport(sender, trimmedArgs);
             } else if (commandName.equals("clear")) {
                 return performInventoryClean(sender, trimmedArgs);
+            } else if (commandName.equals("msg")) {
+                return performMessage(sender, trimmedArgs);
+            } else if (commandName.equals("reply")) {
+                return performReply(sender, trimmedArgs);
             } else if (commandName.equals("take")) {
                 return performTake(sender, trimmedArgs);
             } else if (commandName.equals("give")) {
@@ -216,6 +277,34 @@ public class ScrapBukkit extends JavaPlugin {
         }
         sender.sendMessage("Given " + player.getDisplayName() + " " + count + " " + material.toString());
         return true;
+    }
+
+    private boolean performMessage(CommandSender sender, String[] split) throws CommandException {
+        if (split.length < 2) {
+            return false;
+        }
+
+        checkPermissions(sender, "scrapbukkit.msg");
+
+        String message = StringUtil.joinString(split, " ", 1);
+        
+        return sendWhisper(sender, split[0], message);
+    }
+
+    private boolean performReply(CommandSender sender, String[] split) throws CommandException {
+        if (split.length < 1) {
+            return false;
+        }
+
+        String fromName = sender instanceof Player ? ((Player) sender).getName() : "Console";
+        String message = StringUtil.joinString(split, " ");
+        
+        if (messageTargets.containsKey(fromName)) {
+            return sendWhisper(sender, messageTargets.get(fromName), message);
+        } else {
+            sender.sendMessage("You haven't messaged anyone!");
+            return true;
+        }
     }
 
     private boolean performTake(CommandSender sender, String[] split) throws CommandException {
@@ -488,10 +577,21 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     protected Player matchPlayer(String[] split, CommandSender sender) {
+        return matchPlayer(split[0], sender);
+    }
+
+    protected Player matchPlayer(String name, CommandSender sender) {
+        Player player = matchPlayerSilent(name, sender);
+        if (player == null) {
+            sender.sendMessage(ChatColor.RED + "Didn't find a player named by '" + name + "'");
+        }
+        return player;
+    }
+
+    protected Player matchPlayerSilent(String name, CommandSender sender) {
         Player player;
-        List<Player> players = getServer().matchPlayer(split[0]);
+        List<Player> players = getServer().matchPlayer(name);
         if (players.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "Unknown player");
             player = null;
         } else {
             player = players.get(0);
