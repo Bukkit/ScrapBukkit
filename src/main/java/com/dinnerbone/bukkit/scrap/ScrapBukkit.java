@@ -103,32 +103,37 @@ public class ScrapBukkit extends JavaPlugin {
         String[] trimmedArgs = args;
         String commandName = command.getName().toLowerCase();
 
-        if (commandName.equals("tp")) {
-            return performTeleport(sender, trimmedArgs);
-        } else if (commandName.equals("clear")) {
-            return performInventoryClean(sender, trimmedArgs);
-        } else if (commandName.equals("take")) {
-            return performTake(sender, trimmedArgs);
-        } else if (commandName.equals("give")) {
-            return performGive(sender, trimmedArgs);
-        } else if (commandName.equals("tphere")) {
-            return performTPHere(sender, trimmedArgs);
-        } else if (commandName.equals("time")) {
-            return performTimeCheck(sender, trimmedArgs);
-        } else if (commandName.equals("where")) {
-            return performPosition(sender, trimmedArgs);
+        try {
+            if (commandName.equals("tp")) {
+                return performTeleport(sender, trimmedArgs);
+            } else if (commandName.equals("clear")) {
+                return performInventoryClean(sender, trimmedArgs);
+            } else if (commandName.equals("take")) {
+                return performTake(sender, trimmedArgs);
+            } else if (commandName.equals("give")) {
+                return performGive(sender, trimmedArgs);
+            } else if (commandName.equals("tphere")) {
+                return performTPHere(sender, trimmedArgs);
+            } else if (commandName.equals("time")) {
+                return performTimeCheck(sender, trimmedArgs);
+            } else if (commandName.equals("where")) {
+                return performPosition(sender, trimmedArgs);
+            }
+        } catch (PermissionsCommandException e) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission to do that");
+            return true;
+        } catch (CommandException e) {
+            return false;
         }
         return false;
     }
 
-    private boolean performGive(CommandSender sender, String[] split) {
+    private boolean performGive(CommandSender sender, String[] split) throws CommandException {
         if ((split.length > 3) || (split.length == 0)) {
             return false;
         }
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to give players items");
-            return true;
-        }
+
+        checkPermissions(sender, "scrapbukkit.give");
 
         Player player = null;
         Material material = null;
@@ -143,6 +148,7 @@ public class ScrapBukkit extends JavaPlugin {
             }
         }
         if (split.length >= 2) {
+            
             try {
                 count = Integer.parseInt(split[1]);
             } catch (NumberFormatException ex) {
@@ -151,6 +157,8 @@ public class ScrapBukkit extends JavaPlugin {
             }
         }
         if (split.length == 3) {
+            checkPermissions(sender, "scrapbukkit.give.other");
+            
             player = getServer().getPlayer(split[2]);
             if (player == null) {
                 sender.sendMessage(ChatColor.RED + "'" + split[2] + "' is not a valid player!");
@@ -176,32 +184,20 @@ public class ScrapBukkit extends JavaPlugin {
         return true;
     }
 
-    private Player matchPlayer(String[] split, CommandSender sender) {
-        Player player;
-        List<Player> players = getServer().matchPlayer(split[0]);
-        if (players.isEmpty()) {
-            sender.sendMessage(ChatColor.RED + "Unknown player");
-            player = null;
-        } else {
-            player = players.get(0);
-        }
-        return player;
-    }
-
-    private boolean performTake(CommandSender sender, String[] split) {
+    private boolean performTake(CommandSender sender, String[] split) throws CommandException {
         if ((split.length > 3) || (split.length == 0)) {
             return false;
         }
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to take players' items");
-            return true;
-        }
+
+        checkPermissions(sender, "scrapbukkit.take");
 
         Player player = null;
         Material material = null;
         int count = -1;
 
         if (split.length >= 2) {
+            checkPermissions(sender, "scrapbukkit.take.other");
+            
             player = matchPlayer(split, sender);
             if (player == null) {
                 sender.sendMessage("Didn't find such a player!");
@@ -237,11 +233,9 @@ public class ScrapBukkit extends JavaPlugin {
         return true;
     }
 
-    private boolean performInventoryClean(CommandSender sender, String[] split) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to clean players' inventories");
-            return true;
-        }
+    private boolean performInventoryClean(CommandSender sender, String[] split) throws CommandException {
+        checkPermissions(sender, "scrapbukkit.clean");
+        
         if (split.length > 1) {
             return false;
         }
@@ -249,6 +243,8 @@ public class ScrapBukkit extends JavaPlugin {
         Player player = null;
 
         if (split.length == 1) {
+            checkPermissions(sender, "scrapbukkit.clean.other");
+            
             player = matchPlayer(split, sender);
             if (player == null) {
                 sender.sendMessage("Didn't find such a player!");
@@ -265,11 +261,8 @@ public class ScrapBukkit extends JavaPlugin {
         return true;
     }
 
-    private boolean performTeleport(CommandSender sender, String[] split) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to teleport players");
-            return true;
-        }
+    private boolean performTeleport(CommandSender sender, String[] split) throws CommandException {
+        checkPermissions(sender, "scrapbukkit.teleport");
         
         if (split.length == 1) {
             if (anonymousCheck(sender)) return true;
@@ -288,6 +281,8 @@ public class ScrapBukkit extends JavaPlugin {
             }
             return true;
         } else if (split.length == 2) {
+            checkPermissions(sender, "scrapbukkit.teleport.other");
+            
             String victim = split[0];
             String dest = split[1];
 
@@ -295,6 +290,9 @@ public class ScrapBukkit extends JavaPlugin {
                 sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
                 return true;
             } else {
+                if (victim.equalsIgnoreCase("*")) {
+                    checkPermissions(sender, "scrapbukkit.teleport.wildcard");
+                }
                 if (!teleport(victim, dest)) {
                     sender.sendMessage(ChatColor.RED + "Could not teleport "
                             + victim + " to " + dest + " (Are the names spelt correctly?)");
@@ -303,6 +301,8 @@ public class ScrapBukkit extends JavaPlugin {
             }
             return true;
         } else if (split.length == 3) {
+            checkPermissions(sender, "scrapbukkit.teleport.coords");
+            
             Player player = null;
             if (anonymousCheck(sender)) return true;
 
@@ -321,6 +321,9 @@ public class ScrapBukkit extends JavaPlugin {
             teleport(player, tx, ty, tz);
             return true;
         } else if (split.length == 4) {
+            checkPermissions(sender, "scrapbukkit.teleport.other");
+            checkPermissions(sender, "scrapbukkit.teleport.coords");
+            
             Player player = null;
             if (anonymousCheck(sender)) return true;
 
@@ -342,11 +345,9 @@ public class ScrapBukkit extends JavaPlugin {
         return false;
     }
     
-    private boolean performTPHere(CommandSender sender, String[] split) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to teleport players");
-            return true;
-        }
+    private boolean performTPHere(CommandSender sender, String[] split) throws CommandException {
+        checkPermissions(sender, "scrapbukkit.teleport.other");
+        
         if ((split.length == 1)) {
             if (!anonymousCheck(sender)) {
                 return true;
@@ -365,7 +366,7 @@ public class ScrapBukkit extends JavaPlugin {
         }
     }
 
-    private boolean performTimeCheck(CommandSender sender, String[] split) {
+    private boolean performTimeCheck(CommandSender sender, String[] split) throws CommandException {
         World world = sender instanceof Player ? ((Player)sender).getWorld() : getServer().getWorlds().get(0);
         long time = world.getTime();
         
@@ -375,10 +376,7 @@ public class ScrapBukkit extends JavaPlugin {
             sender.sendMessage(String.format( "Time: %02d:%02d", hours, minutes));
             return true;
         } else if (split.length == 1) {
-            if (!sender.isOp()) {
-                sender.sendMessage("You do not have permission to alter the time");
-                return true;
-            }
+            checkPermissions(sender, "scrapbukkit.time");
 
             String timeStr = split[0];
             if (timeStr.equalsIgnoreCase("help")) {
@@ -420,10 +418,12 @@ public class ScrapBukkit extends JavaPlugin {
         return false;
     }
 
-    private boolean performPosition(CommandSender sender, String[] split) {
-        if (!anonymousCheck(sender)) {
+    private boolean performPosition(CommandSender sender, String[] split) throws CommandException {
+        if (anonymousCheck(sender)) {
             return true;
         }
+        
+        checkPermissions(sender, "scrapbukkit.where");
         
         Player player = (Player)sender;     
         
@@ -434,5 +434,23 @@ public class ScrapBukkit extends JavaPlugin {
             return true;
         }
         return false;
+    }
+
+    protected Player matchPlayer(String[] split, CommandSender sender) {
+        Player player;
+        List<Player> players = getServer().matchPlayer(split[0]);
+        if (players.isEmpty()) {
+            sender.sendMessage(ChatColor.RED + "Unknown player");
+            player = null;
+        } else {
+            player = players.get(0);
+        }
+        return player;
+    }
+    
+    protected void checkPermissions(CommandSender sender, String permission) throws PermissionsCommandException {
+        if (!sender.isOp()) {
+            throw new PermissionsCommandException();
+        }
     }
 }
