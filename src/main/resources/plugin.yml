@@ -32,7 +32,6 @@ commands:
            Example: /<command> 100 200 100 - teleports you to the location 100,200,100 (X,Y,Z).
            Example: /<command> Bukkit 100 200 100 - teleports a player named Bukkit to the location 100,200,100.
   tphere:
-    aliases: bring
     description: Teleports someone to yourself.
     usage: |
            /<command> <victim>
@@ -57,25 +56,3 @@ commands:
            Example: /<command> TNT - removes all TNT from your inventory.
            Example: /<command> griefer TNT -1 - removes all TNT from a player named griefer's inventory.
            Example: /<command> duplicator diamond_pickaxe 1 - removes 1 diamond pickaxe from a player named duplicator's inventory.
-  where:
-    aliases: [getpos, pos, whereami]
-    description: Tells you your location
-    usage: |
-           /<command>
-  compass:
-    description: Get the way that you are facing
-    usage: |
-           /<command>
-  msg:
-    aliases: [m, whisper, privmsg, pm]
-    description: Send a private message to a user
-    usage: |
-           /<command> <player> <message...>
-           Example: /<command> sk89q Jon is cool
-           Example: /<command> Console hello sk
-  reply:
-    aliases: r
-    description: Reply to the last user private messaged
-    usage: |
-           /<command> <message...>
-           Example: /<command> Hello Evan!
