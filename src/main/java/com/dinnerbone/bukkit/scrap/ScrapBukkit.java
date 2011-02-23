@@ -1,7 +1,6 @@
 
 package com.dinnerbone.bukkit.scrap;
 
-import java.io.File;
 import java.util.List;
 
 import org.bukkit.command.Command;
@@ -11,16 +10,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * Miscellaneous administrative commands
  *
  * @author Dinnerbone
+ * @author sk89q
  */
 public class ScrapBukkit extends JavaPlugin {
 
@@ -117,6 +115,8 @@ public class ScrapBukkit extends JavaPlugin {
             return performTPHere(sender, trimmedArgs);
         } else if (commandName.equals("time")) {
             return performTimeCheck(sender, trimmedArgs);
+        } else if (commandName.equals("where")) {
+            return performPosition(sender, trimmedArgs);
         }
         return false;
     }
@@ -406,6 +406,23 @@ public class ScrapBukkit extends JavaPlugin {
             }
 
             sender.sendMessage("Done.");
+            return true;
+        }
+        return false;
+    }
+
+    private boolean performPosition(CommandSender sender, String[] split) {
+        if (!(sender instanceof Player)) {
+            sender.sendMessage("Only a player can use this command");
+            return false;
+        }
+        
+        Player player = (Player)sender;     
+        
+        if (split.length == 0) {
+            Location loc = player.getLocation();
+            sender.sendMessage(String.format("Your location: %.2f, %.2f, %.2f",
+                    loc.getX(), loc.getY(), loc.getZ()));
             return true;
         }
         return false;

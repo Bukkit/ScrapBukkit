@@ -56,3 +56,7 @@ commands:
            Example: /<command> TNT - removes all TNT from your inventory.
            Example: /<command> griefer TNT -1 - removes all TNT from a player named griefer's inventory.
            Example: /<command> duplicator diamond_pickaxe 1 - removes 1 diamond pickaxe from a player named duplicator's inventory.
+  where:
+    description: Tells you your location
+    usage: |
+           /<command>
