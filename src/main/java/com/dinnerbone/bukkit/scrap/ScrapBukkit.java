@@ -1,9 +1,7 @@
 
 package com.dinnerbone.bukkit.scrap;
 
-import java.io.File;
 import java.util.List;
-
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -11,10 +9,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -40,13 +36,6 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     protected boolean teleport(final String victimName, final Player destination) {
-        Player victim = getServer().getPlayer(victimName);
-        return teleport(victim, destination);
-    }
-
-    protected boolean teleport(final String victimName, final String destName) {
-        Player destination = getServer().getPlayer(destName);
-
         if (victimName.equalsIgnoreCase("*")) {
             Player[] players = getServer().getOnlinePlayers();
             for (Player victim : players) {
@@ -61,11 +50,16 @@ public class ScrapBukkit extends JavaPlugin {
         }
     }
 
+    protected boolean teleport(final String victimName, final String destName) {
+        Player destination = getServer().getPlayer(destName);
+        return teleport(victimName, destination);
+    }
+
     protected boolean teleport(final Player victim, final Player destination) {
         if ((victim == null) || (destination == null)) 
             return false;
         
-        victim.teleportTo(destination.getLocation());
+        victim.teleportTo(destination);
         return true;
     }
 
