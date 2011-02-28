@@ -29,7 +29,7 @@ public class ScrapBukkit extends JavaPlugin {
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
 
-        getServer().getPluginCommand("time").setExecutor(new TimePluginCommand(this));
+        getCommand("time").setExecutor(new TimePluginCommand(this));
     }
 
     protected boolean teleport(final Player victim, final String destName) {
