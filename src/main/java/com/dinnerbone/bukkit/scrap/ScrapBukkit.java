@@ -28,6 +28,8 @@ public class ScrapBukkit extends JavaPlugin {
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+
+        getServer().getPluginCommand("time").setExecutor(new TimePluginCommand(this));
     }
 
     protected boolean teleport(final Player victim, final String destName) {
@@ -109,9 +111,8 @@ public class ScrapBukkit extends JavaPlugin {
             return performGive(sender, trimmedArgs);
         } else if (commandName.equals("tphere")) {
             return performTPHere(sender, trimmedArgs);
-        } else if (commandName.equals("time")) {
-            return performTimeCheck(sender, trimmedArgs);
         }
+        
         return false;
     }
 
@@ -348,60 +349,5 @@ public class ScrapBukkit extends JavaPlugin {
         } else {
             return false;
         }
-    }
-
-    private boolean performTimeCheck(CommandSender sender, String[] split) {
-        World world = sender instanceof Player ? ((Player)sender).getWorld() : getServer().getWorlds().get(0);
-        long time = world.getTime();
-        
-        if (split.length == 0) {
-            int hours = (int)((time / 1000+8) % 24);
-            int minutes = (int) (60 * (time % 1000) / 1000);
-            sender.sendMessage(String.format( "Time: %02d:%02d", hours, minutes));
-            return true;
-        } else if (split.length == 1) {
-            if (!sender.isOp()) {
-                sender.sendMessage("You do not have permission to alter the time");
-                return false;
-            }
-
-            String timeStr = split[0];
-            if (timeStr.equalsIgnoreCase("help")) {
-                // Gets handled later.
-            } else if (timeStr.equalsIgnoreCase("raw")) {
-                sender.sendMessage("Raw: " + world.getFullTime());
-            } else if (timeStr.equalsIgnoreCase("day")) {
-                world.setTime(0);
-            } else if (timeStr.equalsIgnoreCase("night")) {
-                world.setTime(13000);
-            } else if (timeStr.startsWith("=")) {
-                try {
-                    world.setTime(Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) {
-                    sender.sendMessage("That is not a number");
-                    return false;
-                }
-            } else if (timeStr.startsWith("+")) {
-                try {
-                    world.setTime(time + Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) {
-                    sender.sendMessage("That is not a number");
-                    return false;
-                }
-            } else if (timeStr.startsWith("-")) {
-                try {
-                    world.setTime(time-Long.parseLong(timeStr.substring(1)));
-                } catch(NumberFormatException ex) {
-                    sender.sendMessage("That is not a number");
-                    return false;
-                }
-            } else {
-                return false;
-            }
-
-            sender.sendMessage("Done.");
-            return true;
-        }
-        return false;
     }
 }
