@@ -31,14 +31,19 @@ public class ScrapBukkit extends JavaPlugin {
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
 
         getCommand("time").setExecutor(new TimePluginCommand(this));
+        getCommand("tp").setExecutor(new TeleportPluginCommand(this));
+        getCommand("give").setExecutor(new GivePluginCommand(this));
+        getCommand("take").setExecutor(new TakePluginCommand(this));
+        getCommand("tphere").setExecutor(new TeleportHereCommand(this));
+        getCommand("clear").setExecutor(new ClearPluginCommand(this));
     }
 
-    protected boolean teleport(final Player victim, final String destName) {
+    public boolean teleport(final Player victim, final String destName) {
         Player destination = getServer().getPlayer(destName);
         return teleport(victim, destination);
     }
 
-    protected boolean teleport(final String victimName, final Player destination) {
+    public boolean teleport(final String victimName, final Player destination) {
         if (victimName.equalsIgnoreCase("*")) {
             Player[] players = getServer().getOnlinePlayers();
             for (Player victim : players) {
@@ -53,12 +58,12 @@ public class ScrapBukkit extends JavaPlugin {
         }
     }
 
-    protected boolean teleport(final String victimName, final String destName) {
+    public boolean teleport(final String victimName, final String destName) {
         Player destination = getServer().getPlayer(destName);
         return teleport(victimName, destination);
     }
 
-    protected boolean teleport(final Player victim, final Player destination) {
+    public boolean teleport(final Player victim, final Player destination) {
         if ((victim == null) || (destination == null)) 
             return false;
         
@@ -66,7 +71,7 @@ public class ScrapBukkit extends JavaPlugin {
         return true;
     }
 
-    protected boolean teleport(final Player victim, Double x, Double y, Double z) {
+    public boolean teleport(final Player victim, Double x, Double y, Double z) {
         World world = victim instanceof Player ? ((Player) victim).getWorld() : getServer().getWorlds().get(0);
         if (victim == null)
             return false;
@@ -77,7 +82,7 @@ public class ScrapBukkit extends JavaPlugin {
         return true;
     }
 
-    protected boolean teleport(final String victim, final Player sender, Double x, Double y, Double z) {
+    public boolean teleport(final String victim, final Player sender, Double x, Double y, Double z) {
         World world = sender instanceof Player ? ((Player) sender).getWorld() : getServer().getWorlds().get(0);
         if (getServer().getPlayer(victim) == null)
             return false;
@@ -88,7 +93,7 @@ public class ScrapBukkit extends JavaPlugin {
         return true;
     }
 
-    private boolean anonymousCheck(CommandSender sender) {
+    public boolean anonymousCheck(CommandSender sender) {
         if (!(sender instanceof Player)) {
             sender.sendMessage("Cannot execute that command, I don't know who you are!");
             return true;
@@ -96,83 +101,8 @@ public class ScrapBukkit extends JavaPlugin {
             return false;
         }
     }
-    
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String commandLabel, String[] args) {
-        String[] trimmedArgs = args;
-        String commandName = command.getName().toLowerCase();
 
-        if (commandName.equals("tp")) {
-            return performTeleport(sender, trimmedArgs);
-        } else if (commandName.equals("clear")) {
-            return performInventoryClean(sender, trimmedArgs);
-        } else if (commandName.equals("take")) {
-            return performTake(sender, trimmedArgs);
-        } else if (commandName.equals("give")) {
-            return performGive(sender, trimmedArgs);
-        } else if (commandName.equals("tphere")) {
-            return performTPHere(sender, trimmedArgs);
-        }
-        
-        return false;
-    }
-
-    private boolean performGive(CommandSender sender, String[] split) {
-        if ((split.length > 3) || (split.length == 0)) {
-            return false;
-        }
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to give players items");
-            return false;
-        }
-
-        Player player = null;
-        Material material = null;
-        int count = 1;
-        String[] gData = null;
-        Byte bytedata = null;
-        if (split.length >= 1) {
-            gData = split[0].split(":");
-            material = Material.matchMaterial(gData[0]);
-            if (gData.length == 2) {
-                bytedata = Byte.valueOf(gData[1]);
-            }
-        }
-        if (split.length >= 2) {
-            try {
-                count = Integer.parseInt(split[1]);
-            } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "'" + split[1] + "' is not a number!");
-                return false;
-            }
-        }
-        if (split.length == 3) {
-            player = getServer().getPlayer(split[2]);
-            if (player == null) {
-                sender.sendMessage(ChatColor.RED + "'" + split[2] + "' is not a valid player!");
-                return false;
-            }
-        } else {
-            if (anonymousCheck(sender)) {
-                return false;
-            } else {
-                player = (Player) sender;
-            }
-        }
-        if (material == null) {
-            sender.sendMessage(ChatColor.RED + "Unknown item");
-            return false;
-        }
-        if (bytedata != null) {
-            player.getInventory().addItem(new ItemStack(material, count, (short) 0, bytedata));
-        } else {
-            player.getInventory().addItem(new ItemStack(material, count));
-        }
-        sender.sendMessage("Given " + player.getDisplayName() + " " + count + " " + material.toString());
-        return true;
-    }
-
-    private Player matchPlayer(String[] split, CommandSender sender) {
+    public Player matchPlayer(String[] split, CommandSender sender) {
         Player player;
         List<Player> players = getServer().matchPlayer(split[0]);
         if (players.isEmpty()) {
@@ -182,173 +112,5 @@ public class ScrapBukkit extends JavaPlugin {
             player = players.get(0);
         }
         return player;
-    }
-
-    private boolean performTake(CommandSender sender, String[] split) {
-        if ((split.length > 3) || (split.length == 0)) {
-            return false;
-        }
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to take players' items");
-            return false;
-        }
-
-        Player player = null;
-        Material material = null;
-        int count = -1;
-
-        if (split.length >= 2) {
-            player = matchPlayer(split, sender);
-            if (player == null) return false;
-            material = Material.matchMaterial(split[1]);
-        } else {
-            if (anonymousCheck(sender)) return false;
-            player = (Player)sender;
-            material = Material.matchMaterial(split[0]);
-        }
-
-        if (split.length >= 3) {
-            try {
-                count = Integer.parseInt(split[2]);
-            } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "'" + split[2] + "' is not a number!");
-                return false;
-            }
-        }
-
-        if (material == null) {
-            sender.sendMessage(ChatColor.RED + "Unknown item");
-            return false;
-        }
-
-        if (count < 0) {
-            player.getInventory().remove(material);
-        } else {
-            player.getInventory().remove(new ItemStack(material, count));
-        }
-        sender.sendMessage("Took " + count + " " + material.toString() + " from " + player.getDisplayName());
-        return true;
-    }
-
-    private boolean performInventoryClean(CommandSender sender, String[] split) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to clean players' inventories");
-            return false;
-        }
-        if (split.length > 1) {
-            return false;
-        }
-
-        Player player = null;
-
-        if (split.length == 1) {
-            player = matchPlayer(split, sender);
-            if (player == null) return false;
-        } else if (anonymousCheck(sender)) {
-            return false;
-        } else {
-            player = (Player)sender;
-        }
-
-        sender.sendMessage("Cleared inventory of " + player.getDisplayName());
-        player.getInventory().clear();
-        return true;
-    }
-
-    private boolean performTeleport(CommandSender sender, String[] split) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to teleport players");
-            return false;
-        }
-        
-        if (split.length == 1) {
-            if (anonymousCheck(sender)) return false;
-            Player player = (Player)sender;
-            String dest = split[0];
-            
-            if (dest.equalsIgnoreCase("*")) {
-                sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
-                return false;
-            } else {
-                if (!teleport(player, dest)) {
-                    sender.sendMessage(ChatColor.RED + "Could not teleport to " + dest
-                            + " (Is the name spelt correctly?)");
-                    return false;
-                }
-            }
-            return true;
-        } else if (split.length == 2) {
-            String victim = split[0];
-            String dest = split[1];
-
-            if (dest.equalsIgnoreCase("*")) {
-                sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
-                return false;
-            } else {
-                if (!teleport(victim, dest)) {
-                    sender.sendMessage(ChatColor.RED + "Could not teleport "
-                            + victim + " to " + dest + " (Are the names spelt correctly?)");
-                    return false;
-                }
-            }
-            return true;
-        } else if (split.length == 3) {
-            Player player = null;
-            if (anonymousCheck(sender)) return false;
-
-            player = (Player) sender;
-            Double tx = null;
-            Double ty = null;
-            Double tz = null;
-            try {
-                tx = Double.valueOf(split[0]);
-                ty = Double.valueOf(split[1]);
-                tz = Double.valueOf(split[2]);
-            } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Not valid coordinates!");
-                return false;
-            }
-            teleport(player, tx, ty, tz);
-            return true;
-        } else if (split.length == 4) {
-            Player player = null;
-            if (anonymousCheck(sender)) return false;
-
-            player = (Player) sender;
-            Double tx = null;
-            Double ty = null;
-            Double tz = null;
-            try {
-                tx = Double.valueOf(split[1]);
-                ty = Double.valueOf(split[2]);
-                tz = Double.valueOf(split[3]);
-            } catch (NumberFormatException ex) {
-                sender.sendMessage(ChatColor.RED + "Not valid coordinates!");
-                return false;
-            }
-            teleport(split[0], player, tx, ty, tz);
-            return true;
-        }
-        return false;
-    }
-    
-    private boolean performTPHere(CommandSender sender, String[] split) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to teleport players");
-            return false;
-        }
-        if ((split.length == 1) && (!anonymousCheck(sender))) {
-            String victim = split[0];
-
-            if (teleport(victim, (Player)sender)) {
-                sender.sendMessage("Done.");
-                return true;
-            } else {
-                sender.sendMessage(ChatColor.RED + "Could not teleport " + victim + " to you (Is the name spelt correctly?)");
-                return false;
-            }
-        } else {
-            return false;
-        }
     }
 }
