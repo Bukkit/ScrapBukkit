@@ -1,6 +1,7 @@
 
 package com.dinnerbone.bukkit.scrap;
 
+import com.dinnerbone.bukkit.scrap.commands.*;
 import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
