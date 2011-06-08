@@ -34,7 +34,7 @@ public class ClearPluginCommand implements CommandExecutor {
             player = (Player)sender;
         }
 
-        sender.sendMessage("Cleared inventory of " + player.getDisplayName());
+        plugin.announceCheat(sender, "Cleared inventory of " + player.getDisplayName());
         player.getInventory().clear();
         return true;
     }

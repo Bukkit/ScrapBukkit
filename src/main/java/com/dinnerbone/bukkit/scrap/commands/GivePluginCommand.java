@@ -67,7 +67,7 @@ public class GivePluginCommand implements CommandExecutor {
         } else {
             player.getInventory().addItem(new ItemStack(material, count));
         }
-        sender.sendMessage("Given " + player.getDisplayName() + " " + count + " " + material.toString());
+        plugin.announceCheat(sender, "Given " + player.getDisplayName() + " " + count + " " + material.toString());
         return true;
     }
 }

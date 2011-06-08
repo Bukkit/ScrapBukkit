@@ -86,6 +86,11 @@ public class TeleportPluginCommand implements CommandExecutor {
                 return false;
             }
             plugin.teleport(args[0], player, tx, ty, tz);
+            plugin.announceCheat(
+                sender, 
+                "Teleported " + player.getDisplayName() 
+                    + " to " + tx + " " + ty + " " + tz, 
+                false);
             return true;
         }
         return false;
