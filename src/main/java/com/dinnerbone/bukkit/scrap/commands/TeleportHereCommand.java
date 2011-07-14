@@ -23,6 +23,7 @@ public class TeleportHereCommand implements CommandExecutor {
             String victim = args[0];
 
             if (plugin.teleport(victim, (Player)sender)) {
+                plugin.announceCheat(sender, "Teleported " + victim + " to self", false);
                 sender.sendMessage("Done.");
                 return true;
             } else {

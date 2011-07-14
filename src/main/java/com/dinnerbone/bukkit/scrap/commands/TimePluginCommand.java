@@ -14,14 +14,18 @@ public class TimePluginCommand implements CommandExecutor {
         this.plugin = plugin;
     }
 
+    public static String describeTime(long time) {
+        int hours = (int) ((time / 1000+8) % 24);
+        int minutes = (int) (60 * (time % 1000) / 1000);
+        return String.format("Time: %02d:%02d", hours, minutes);
+    }
+
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         World world = sender instanceof Player ? ((Player) sender).getWorld() : plugin.getServer().getWorlds().get(0);
         long time = world.getTime();
 
         if (args.length == 0) {
-            int hours = (int) ((time / 1000+8) % 24);
-            int minutes = (int) (60 * (time % 1000) / 1000);
-            sender.sendMessage(String.format("Time: %02d:%02d", hours, minutes));
+            sender.sendMessage(describeTime(time));
             return true;
         }
 
@@ -65,7 +69,13 @@ public class TimePluginCommand implements CommandExecutor {
                 return false;
             }
             
-            sender.sendMessage("Done.");
+            long newTime = world.getTime();
+            if (newTime != time) {
+                plugin.announceCheat(sender, "Changed world time to " + describeTime(newTime));
+            } else {
+                sender.sendMessage("Done.");
+            }
+            
             return true;
         }
         

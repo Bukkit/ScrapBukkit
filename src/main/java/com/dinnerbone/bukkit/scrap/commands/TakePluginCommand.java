@@ -58,7 +58,7 @@ public class TakePluginCommand implements CommandExecutor {
         } else {
             player.getInventory().remove(new ItemStack(material, count));
         }
-        sender.sendMessage("Took " + count + " " + material.toString() + " from " + player.getDisplayName());
+        plugin.announceCheat(sender, "Took " + count + " " + material.toString() + " from " + player.getDisplayName());
         return true;
     }
 }

@@ -5,14 +5,17 @@ import com.dinnerbone.bukkit.scrap.commands.*;
 import java.util.List;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.config.Configuration;
 
 /**
  * Miscellaneous administrative commands
@@ -20,6 +23,8 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @author Dinnerbone
  */
 public class ScrapBukkit extends JavaPlugin {
+
+    public boolean nameAndShame = true;
 
     public void onDisable() {
         //PluginManager pm = getServer().getPluginManager();
@@ -36,6 +41,25 @@ public class ScrapBukkit extends JavaPlugin {
         getCommand("take").setExecutor(new TakePluginCommand(this));
         getCommand("tphere").setExecutor(new TeleportHereCommand(this));
         getCommand("clear").setExecutor(new ClearPluginCommand(this));
+
+        loadConfig();
+        saveConfig();
+    }
+
+    public void loadConfig() {
+        try {
+            Configuration config = this.getConfiguration();
+            nameAndShame = config.getBoolean("nameAndShame", nameAndShame);
+
+        } catch (Exception e) {
+            getServer().getLogger().severe("Exception while loading ScrapBukkit/config.yml");
+        }
+    }
+
+    public void saveConfig() {
+        Configuration config = getConfiguration();
+        config.setProperty("nameAndShame", nameAndShame);
+        config.save();
     }
 
     public boolean teleport(final Player victim, final String destName) {
@@ -112,5 +136,30 @@ public class ScrapBukkit extends JavaPlugin {
             player = players.get(0);
         }
         return player;
+    }
+
+    public void announceCheat(CommandSender sender, String message) {
+        announceCheat(sender, message, true);
+    }
+
+    public void announceCheat(CommandSender sender, String message, boolean tellSender) {
+        Server server = sender.getServer();
+
+        String nameTag = "";
+
+        if (sender instanceof Player) {
+            Player sendingPlayer = (Player)sender;
+            nameTag = "[" + sendingPlayer.getDisplayName() + "] ";
+        } else if (sender instanceof ConsoleCommandSender) {
+            nameTag = "[" + server.getServerName() + " (console)] ";
+        }
+
+        server.getLogger().info(nameTag + message);
+
+        if (nameAndShame) {
+            server.broadcastMessage(ChatColor.YELLOW + nameTag + ChatColor.WHITE + message);
+        } else if (tellSender) {
+            sender.sendMessage(message);
+        }
     }
 }
