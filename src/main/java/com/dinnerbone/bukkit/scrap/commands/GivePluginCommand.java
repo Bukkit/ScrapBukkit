@@ -25,10 +25,10 @@ public class GivePluginCommand implements CommandExecutor {
             return false;
         }
 
-        Player player = null;
+        Player player;
         Material material = null;
         int count = 1;
-        String[] gData = null;
+        String[] gData;
         Byte bytedata = null;
         if (args.length >= 1) {
             gData = args[0].split(":");

@@ -25,8 +25,8 @@ public class TakePluginCommand implements CommandExecutor {
             return false;
         }
 
-        Player player = null;
-        Material material = null;
+        Player player;
+        Material material;
         int count = -1;
 
         if (args.length >= 2) {

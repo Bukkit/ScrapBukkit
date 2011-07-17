@@ -1,7 +1,6 @@
 package com.dinnerbone.bukkit.scrap.commands;
 
 import com.dinnerbone.bukkit.scrap.ScrapBukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,7 +22,7 @@ public class ClearPluginCommand implements CommandExecutor {
             return false;
         }
 
-        Player player = null;
+        Player player;
 
         if (args.length == 1) {
             player = plugin.matchPlayer(args, sender);

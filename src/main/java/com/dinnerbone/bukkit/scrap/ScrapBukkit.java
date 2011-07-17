@@ -1,18 +1,21 @@
 
 package com.dinnerbone.bukkit.scrap;
 
-import com.dinnerbone.bukkit.scrap.commands.*;
-import java.util.List;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import com.dinnerbone.bukkit.scrap.commands.ClearPluginCommand;
+import com.dinnerbone.bukkit.scrap.commands.GivePluginCommand;
+import com.dinnerbone.bukkit.scrap.commands.TakePluginCommand;
+import com.dinnerbone.bukkit.scrap.commands.TeleportHereCommand;
+import com.dinnerbone.bukkit.scrap.commands.TeleportPluginCommand;
+import com.dinnerbone.bukkit.scrap.commands.TimePluginCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.List;
 
 /**
  * Miscellaneous administrative commands
@@ -67,29 +70,31 @@ public class ScrapBukkit extends JavaPlugin {
         if ((victim == null) || (destination == null)) 
             return false;
         
-        victim.teleportTo(destination);
+        victim.teleport(destination);
         return true;
     }
 
     public boolean teleport(final Player victim, Double x, Double y, Double z) {
-        World world = victim instanceof Player ? ((Player) victim).getWorld() : getServer().getWorlds().get(0);
+        World world = victim != null ? victim.getWorld() : getServer().getWorlds().get(0);
         if (victim == null)
             return false;
 
         Player player = victim;
-        player.teleportTo(new Location(world, x, y, z));
+        player.teleport(new Location(world, x, y, z));
         player.sendMessage("teleported to x:" + x + " y:" + y + " z:" + z);
         return true;
     }
 
     public boolean teleport(final String victim, final Player sender, Double x, Double y, Double z) {
-        World world = sender instanceof Player ? ((Player) sender).getWorld() : getServer().getWorlds().get(0);
+        World world = sender != null ? sender.getWorld() : getServer().getWorlds().get(0);
         if (getServer().getPlayer(victim) == null)
             return false;
 
         Player player = getServer().getPlayer(victim);
-        player.teleportTo(new Location(world, x, y, z));
-        player.sendMessage(sender.getName() + " has teleported you to x:" + x + " y:" + y + " z:" + z);
+        player.teleport(new Location(world, x, y, z));
+        if (sender != null) {
+            player.sendMessage(sender.getName() + " has teleported you to x:" + x + " y:" + y + " z:" + z);
+        }
         return true;
     }
 

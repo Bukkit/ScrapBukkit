@@ -52,13 +52,13 @@ public class TeleportPluginCommand implements CommandExecutor {
             }
             return true;
         } else if (args.length == 3) {
-            Player player = null;
+            Player player;
             if (plugin.anonymousCheck(sender)) return false;
 
             player = (Player) sender;
-            Double tx = null;
-            Double ty = null;
-            Double tz = null;
+            Double tx;
+            Double ty;
+            Double tz;
             try {
                 tx = Double.valueOf(args[0]);
                 ty = Double.valueOf(args[1]);
@@ -70,13 +70,13 @@ public class TeleportPluginCommand implements CommandExecutor {
             plugin.teleport(player, tx, ty, tz);
             return true;
         } else if (args.length == 4) {
-            Player player = null;
+            Player player;
             if (plugin.anonymousCheck(sender)) return false;
 
             player = (Player) sender;
-            Double tx = null;
-            Double ty = null;
-            Double tz = null;
+            Double tx;
+            Double ty;
+            Double tz;
             try {
                 tx = Double.valueOf(args[1]);
                 ty = Double.valueOf(args[2]);
