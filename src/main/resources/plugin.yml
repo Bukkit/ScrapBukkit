@@ -1,6 +1,6 @@
 name: ScrapBukkit
 main: com.dinnerbone.bukkit.scrap.ScrapBukkit
-version: 0.2.1
+version: 1.0.0
 website: http://www.bukkit.org
 author: The Bukkit Team
 description: >
@@ -56,3 +56,67 @@ commands:
            Example: /<command> TNT - removes all TNT from your inventory.
            Example: /<command> griefer TNT -1 - removes all TNT from a player named griefer's inventory.
            Example: /<command> duplicator diamond_pickaxe 1 - removes 1 diamond pickaxe from a player named duplicator's inventory.
+permissions:
+  scrapbukkit.remove:
+    description: Allows the player to remove items from anyones inventory
+    children:
+      scrapbukkit.remove.self: true
+      scrapbukkit.remove.other: true
+  scrapbukkit.remove.self:
+    description: Allows the player to remove items from their own inventory
+  scrapbukkit.remove.other:
+    description: Allows the player to remove items from other peoples inventory
+
+  scrapbukkit.time:
+    description: Allows the player to view and change the time
+    children:
+      scrapbukkit.time.view: true
+      scrapbukkit.time.change: true
+  scrapbukkit.time.view:
+    description: Allows the player to view the time
+    default: true
+  scrapbukkit.time.change:
+    description: Allows the player to change the time
+
+  scrapbukkit.tp:
+    description: Allows the player to teleport anyone to anyone else
+    children:
+      scrapbukkit.tp.here: true
+      scrapbukkit.tp.self: true
+      scrapbukkit.tp.other: true
+  scrapbukkit.tp.here:
+    description: Allows the player to teleport other players to themselvess
+  scrapbukkit.tp.self:
+    description: Allows the player to teleport themselves to another player
+  scrapbukkit.tp.other:
+    description: Allows the player to teleport anyone to another player
+
+  scrapbukkit.give:
+    children:
+      scrapbukkit.give.self: true
+      scrapbukkit.give.other: true
+    description: Allows the player to give items
+  scrapbukkit.give.self:
+    description: Allows the player to give themselves items
+  scrapbukkit.give.other:
+    description: Allows the player to give other players items
+
+  scrapbukkit.clear:
+    description: Allows the player to clear inventories
+    children:
+      scrapbukkit.clear.self: true
+      scrapbukkit.clear.other: true
+  scrapbukkit.clear.self:
+    description: Allows the player to clear their own inventory
+  scrapbukkit.clear.other:
+    description: Allows the player to clear other players inventory
+
+  scrapbukkit.*:
+    description: Gives all permissions for Scrapbukkit
+    default: op
+    children:
+      scrapbukkit.clear: true
+      scrapbukkit.remove: true
+      scrapbukkit.time: true
+      scrapbukkit.tp: true
+      scrapbukkit.give: true

@@ -20,10 +20,6 @@ public class GivePluginCommand implements CommandExecutor {
         if ((args.length > 3) || (args.length == 0)) {
             return false;
         }
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to give players items");
-            return false;
-        }
 
         Player player;
         Material material = null;
@@ -58,6 +54,15 @@ public class GivePluginCommand implements CommandExecutor {
                 player = (Player) sender;
             }
         }
+
+        if ((player == sender) && (!sender.hasPermission("scrapbukkit.give.self"))) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to give yourself items");
+            return true;
+        } else if (!sender.hasPermission("scrapbukkit.give.other")) {
+            sender.sendMessage(ChatColor.RED + "You do not have permission to give items to " + player.getDisplayName());
+            return true;
+        }
+
         if (material == null) {
             sender.sendMessage(ChatColor.RED + "Unknown item");
             return false;

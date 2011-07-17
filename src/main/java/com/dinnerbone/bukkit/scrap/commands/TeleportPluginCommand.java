@@ -15,11 +15,6 @@ public class TeleportPluginCommand implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to teleport players");
-            return false;
-        }
-
         if (args.length == 1) {
             if (plugin.anonymousCheck(sender)) return false;
             Player player = (Player)sender;
@@ -29,6 +24,11 @@ public class TeleportPluginCommand implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
                 return false;
             } else {
+                if (!sender.hasPermission("scrapbukkit.tp.self")) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to teleport yourself to other players");
+                    return true;
+                }
+
                 if (!plugin.teleport(player, dest)) {
                     sender.sendMessage(ChatColor.RED + "Could not teleport to " + dest
                             + " (Is the name spelt correctly?)");
@@ -37,16 +37,29 @@ public class TeleportPluginCommand implements CommandExecutor {
             }
             return true;
         } else if (args.length == 2) {
-            String victim = args[0];
+            String vict = args[0];
+            Player victim = plugin.getServer().getPlayer(vict);
             String dest = args[1];
+            Player target = plugin.getServer().getPlayer(dest);
 
             if (dest.equalsIgnoreCase("*")) {
                 sender.sendMessage(ChatColor.RED + "Incorrect usage of wildchar *");
                 return false;
             } else {
+                if ((target == sender) && (!sender.hasPermission("scrapbukkit.tp.here"))) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to teleport other players to yourself");
+                    return true;
+                } else if ((victim == sender) && (!sender.hasPermission("scrapbukkit.tp.self"))) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to teleport yourself to other players");
+                    return true;
+                } else if (!sender.hasPermission("scrapbukkit.tp.other")) {
+                    sender.sendMessage(ChatColor.RED + "You do not have permission to teleport other players");
+                    return true;
+                }
+
                 if (!plugin.teleport(victim, dest)) {
                     sender.sendMessage(ChatColor.RED + "Could not teleport "
-                            + victim + " to " + dest + " (Are the names spelt correctly?)");
+                            + vict + " to " + dest + " (Are the names spelt correctly?)");
                     return false;
                 }
             }

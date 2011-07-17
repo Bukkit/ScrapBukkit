@@ -15,12 +15,13 @@ public class TeleportHereCommand implements CommandExecutor {
     }
 
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.isOp()) {
-            sender.sendMessage("You do not have permission to teleport players");
-            return false;
-        }
         if ((args.length == 1) && (!plugin.anonymousCheck(sender))) {
             String victim = args[0];
+
+            if (!sender.hasPermission("scrapbukkit.tp.here")) {
+                sender.sendMessage(ChatColor.RED + "You do not have permission to teleport other players to yourself");
+                return true;
+            }
 
             if (plugin.teleport(victim, (Player)sender)) {
                 sender.sendMessage("Done.");
