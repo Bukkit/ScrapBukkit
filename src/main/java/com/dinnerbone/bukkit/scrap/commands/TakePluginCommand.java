@@ -44,10 +44,10 @@ public class TakePluginCommand implements CommandExecutor {
             }
         }
 
-        if ((player == sender) && (!sender.hasPermission("scrapbukkit.take.self"))) {
+        if ((player == sender) && (!sender.hasPermission("scrapbukkit.remove.self"))) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to remove your own items");
             return true;
-        } else if (!sender.hasPermission("scrapbukkit.take.other")) {
+        } else if (!sender.hasPermission("scrapbukkit.remove.other")) {
             sender.sendMessage(ChatColor.RED + "You do not have permission to remove items from " + player.getDisplayName());
             return true;
         }
