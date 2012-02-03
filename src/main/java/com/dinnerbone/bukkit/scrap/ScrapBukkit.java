@@ -1,4 +1,3 @@
-
 package com.dinnerbone.bukkit.scrap;
 
 import com.dinnerbone.bukkit.scrap.commands.ClearPluginCommand;
@@ -23,13 +22,7 @@ import java.util.List;
  * @author Dinnerbone
  */
 public class ScrapBukkit extends JavaPlugin {
-
-    public void onDisable() {
-        //PluginManager pm = getServer().getPluginManager();
-    }
-
-    public void onEnable() {       
-        // EXAMPLE: Custom code, here we just output some info so we can check all is well
+    public void onEnable() {
         PluginDescriptionFile pdfFile = this.getDescription();
         System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
 
@@ -67,9 +60,9 @@ public class ScrapBukkit extends JavaPlugin {
     }
 
     public boolean teleport(final Player victim, final Player destination) {
-        if ((victim == null) || (destination == null)) 
+        if ((victim == null) || (destination == null))
             return false;
-        
+
         victim.teleport(destination);
         return true;
     }
